@@ -14,7 +14,7 @@ export default function ContactPage() {
           <span>Contact</span>
         </div>
         <div className="space-y-3">
-          <h1 className="text-lg font-medium text-slate-900">Get in touch</h1>
+          <h1 className="text-lg font-medium text-neutral-900">Get in touch</h1>
           <p className="text-sm text-muted max-w-md">
             If you have an idea, a side project, or just want to talk about
             product and interfaces, feel free to reach out.
@@ -26,7 +26,7 @@ export default function ContactPage() {
             <p className="text-xs text-soft">Email</p>
             <Link
               href="mailto:siyo@example.com"
-              className="text-sm text-slate-900 underline-offset-4 hover:underline"
+              className="text-sm text-neutral-900 underline-offset-4 hover:underline"
             >
               siyo@example.com
             </Link>
@@ -35,7 +35,7 @@ export default function ContactPage() {
             <p className="text-xs text-soft">GitHub</p>
             <Link
               href="https://github.com/your-github"
-              className="text-sm text-slate-900 underline-offset-4 hover:underline"
+              className="text-sm text-neutral-900 underline-offset-4 hover:underline"
               target="_blank"
               rel="noreferrer"
             >

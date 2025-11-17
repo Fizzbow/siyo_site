@@ -1,5 +1,5 @@
 import type { ElementType, PropsWithChildren } from "react";
-import { InView } from "motion-primitives";
+import { InView } from "./in-view";
 
 export interface FadeInProps {
   as?: ElementType;
@@ -14,13 +14,11 @@ export interface FadeInProps {
 export function FadeIn({
   as: Component = "div",
   delay = 0,
-  className,
   children,
 }: PropsWithChildren<FadeInProps>) {
   return (
     <InView
       as={Component}
-      className={className}
       variants={{
         hidden: {
           opacity: 0,

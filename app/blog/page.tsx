@@ -9,19 +9,22 @@ export const metadata: Metadata = {
 };
 
 interface BlogPageProps {
-  searchParams?: {
+  searchParams?: Promise<{
     category?: string;
-  };
+  }>;
 }
 
-export default function BlogPage({ searchParams }: BlogPageProps) {
-  const category = searchParams?.category;
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const params = await searchParams;
+  const category = params?.category
+    ? decodeURIComponent(params.category).trim()
+    : undefined;
 
   const filtered = blogPosts.filter((post) => {
     if (!category) return true;
-    return (
-      post.category === category ||
-      post.tags.some((tag) => tag.toLowerCase() === category.toLowerCase())
+    // 只匹配 tags，不匹配 category
+    return post.tags.some(
+      (tag) => tag.toLowerCase() === category.toLowerCase()
     );
   });
 
@@ -51,7 +54,7 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
               <span>Writing log</span>
             </div>
             <div>
-              <h1 className="text-lg font-medium text-slate-900">Blog</h1>
+              <h1 className="text-lg font-medium text-neutral-900">Blog</h1>
               <p className="text-sm text-muted">
                 Notes on frontend, motion design, and product thinking.
               </p>
@@ -90,7 +93,7 @@ export default function BlogPage({ searchParams }: BlogPageProps) {
                 <Link
                   key={tag}
                   href={`/blog?category=${encodeURIComponent(tag)}`}
-                  className="text-[11px] text-soft px-2 py-1 rounded-full border border-(--border-subtle) hover:border-(--border-strong) hover:text-foreground transition-colors"
+                  className="text-[11px] text-soft px-2 py-1 rounded-full hover:text-foreground transition-colors"
                 >
                   {tag}
                 </Link>

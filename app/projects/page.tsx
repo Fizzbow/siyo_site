@@ -15,7 +15,7 @@ export default function ProjectsPage() {
             <span>Selected work</span>
           </div>
           <div>
-            <h1 className="text-lg font-medium text-slate-900">Projects</h1>
+            <h1 className="text-lg font-medium text-neutral-900">Projects</h1>
             <p className="text-sm text-muted">
               A collection of product work and small experiments. More details
               live in the Blog.
@@ -46,7 +46,7 @@ export default function ProjectsPage() {
               {project.techStack.map((tech) => (
                 <span
                   key={tech}
-                  className="px-2 py-0.5 rounded-full border border-[color:var(--border-subtle)] bg-[rgba(15,23,42,0.92)]"
+                  className="px-2 py-0.5 rounded-full bg-[rgba(15,23,42,0.92)]"
                 >
                   {tech}
                 </span>
