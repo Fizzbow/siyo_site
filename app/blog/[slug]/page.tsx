@@ -48,7 +48,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           href="/blog"
           className="text-xs text-soft underline-offset-4 hover:underline hover:text-[color:var(--foreground)]"
         >
-          ← 返回 Blog
+          ← Back to Blog
         </Link>
 
         <div className="space-y-2">
@@ -65,7 +65,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 type="button"
                 className="text-[11px] underline-offset-4 hover:underline hover:text-[color:var(--foreground)]"
                 onClick={() => {
-                  window.location.href = `/blog?category=${encodeURIComponent(tag)}`;
+                  window.location.href = `/blog?category=${encodeURIComponent(
+                    tag
+                  )}`;
                 }}
               >
                 #{tag}
@@ -79,5 +81,3 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     </div>
   );
 }
-
-

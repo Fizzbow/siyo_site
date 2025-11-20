@@ -1,62 +1,153 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { motion, type Variants } from "motion/react";
+import clsx from "clsx";
 
-const tabs = [
-  { href: "/blog", label: "Blog" },
-  { href: "/projects", label: "项目" },
-  { href: "/contact", label: "联系方式" },
-];
+type ThemeMode = "light" | "dark";
+const THEME_STORAGE_KEY = "theme";
+
+const outlineVariants: Variants = {
+  initial: {
+    opacity: 0,
+    scale: 0.75,
+  },
+  hover: {
+    opacity: 1,
+    scale: 1.08,
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const outlineCircleVariants: Variants = {
+  initial: {
+    strokeDasharray: "6 8",
+    strokeDashoffset: 32,
+    strokeWidth: 1.2,
+  },
+  hover: {
+    strokeDasharray: ["6 8", "3 4", "1 0"] as unknown as string,
+    strokeDashoffset: [32, 16, 0],
+    strokeWidth: [1.2, 1.4, 1.6],
+    transition: {
+      duration: 0.65,
+      ease: "easeInOut",
+    },
+  },
+};
 
 export function TopNav() {
-  const pathname = usePathname();
-  const router = useRouter();
+  const [mode, setMode] = useState<ThemeMode>("light");
 
-  const isActive = (href: string) => {
-    if (href === "/blog") {
-      return pathname === "/blog" || pathname.startsWith("/blog/");
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const initialMode: ThemeMode = root.classList.contains("dark")
+      ? "dark"
+      : "light";
+    if (initialMode !== mode) {
+      queueMicrotask(() => setMode(initialMode));
     }
-    return pathname === href;
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    if (mode === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(THEME_STORAGE_KEY, mode);
+    }
+  }, [mode]);
+
+  const handleToggle = (next: ThemeMode) => {
+    setMode(next);
   };
 
   return (
-    <header className="flex items-center justify-between px-7 pt-6 pb-3 border-b border-(--border-subtle)">
-      <button
-        type="button"
-        className="flex items-center gap-3 group"
-        onClick={() => router.push("/")}
-        aria-label="返回首页"
+    <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3">
+      <div
+        className={clsx(
+          "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur-2xl backdrop-saturate-150",
+          "bg-white/70 border-white/60 shadow-[0_18px_40px_rgba(148,163,184,0.35)]",
+          "dark:bg-[#0F0F10]/80",
+          "dark:border-white/[0.08]",
+          "dark:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.5)]"
+        )}
+        aria-label="Theme toggle"
       >
-        <div className="relative h-9 w-9 rounded-full overflow-hidden border border-(--border-strong) bg-[radial-gradient(circle_at_0_0,rgba(148,163,184,0.4),transparent_55%),linear-gradient(135deg,#0f172a,#020617)] shadow-[0_12px_30px_rgba(15,23,42,0.7)] group-hover:shadow-[0_16px_40px_rgba(15,23,42,0.9)] transition-shadow duration-150">
-          <div className="absolute inset-[2px] rounded-full bg-[radial-gradient(circle_at_30%_0,rgba(248,250,252,0.55),transparent_52%),linear-gradient(145deg,#1e293b,#020617)]" />
-          <span className="relative z-10 flex h-full items-center justify-center text-sm font-semibold">
-            S
-          </span>
-        </div>
-        <div className="flex flex-col items-start">
-          <span className="text-xs uppercase tracking-[0.18em] text-muted">
-            Portfolio
-          </span>
-          <span className="text-sm font-medium text-foreground">Siyo</span>
-        </div>
-      </button>
+        <motion.button
+          type="button"
+          className="relative inline-flex h-5 w-5 items-center justify-center"
+          onClick={() => handleToggle("dark")}
+          initial={mode === "dark" ? "hover" : "initial"}
+          animate={mode === "dark" ? "hover" : "initial"}
+          whileHover="hover"
+        >
+          <span className="sr-only">Dark mode</span>
+          <span
+            className={clsx(
+              "h-3 w-3 rounded-full transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "bg-slate-900/95 dark:bg-neutral-",
+              mode === "dark" ? "opacity-100 scale-100" : "opacity-60 scale-95"
+            )}
+          />
+          <motion.svg
+            className="pointer-events-none absolute inset-0"
+            viewBox="0 0 24 24"
+            variants={outlineVariants}
+          >
+            <motion.circle
+              cx="12"
+              cy="12"
+              r="8.5"
+              fill="none"
+              stroke="var(--color-fg-primary)"
+              strokeLinecap="round"
+              variants={outlineCircleVariants}
+            />
+          </motion.svg>
+        </motion.button>
 
-      <nav aria-label="主导航">
-        <div className="tab-button-pill flex items-center gap-1.5">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`tab-button ${
-                isActive(tab.href) ? "tab-button--active" : ""
-              }`}
-            >
-              <span>{tab.label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
+        <motion.button
+          type="button"
+          className="relative inline-flex h-5 w-5 items-center justify-center"
+          onClick={() => handleToggle("light")}
+          initial={mode === "light" ? "hover" : "initial"}
+          animate={mode === "light" ? "hover" : "initial"}
+          whileHover="hover"
+        >
+          <span className="sr-only">Light mode</span>
+          <span
+            className={clsx(
+              "h-3 w-3 rounded-full transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "bg-white/95",
+              mode === "light" ? "opacity-100 scale-100" : "opacity-60 scale-95"
+            )}
+          />
+          <motion.svg
+            className="pointer-events-none absolute inset-0"
+            viewBox="0 0 24 24"
+            variants={outlineVariants}
+          >
+            <motion.circle
+              cx="12"
+              cy="12"
+              r="8.5"
+              fill="none"
+              stroke="var(--color-fg-primary)"
+              strokeLinecap="round"
+              variants={outlineCircleVariants}
+            />
+          </motion.svg>
+        </motion.button>
+      </div>
     </header>
   );
 }

@@ -3,6 +3,7 @@
 import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TopNav } from "./TopNav";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -23,6 +24,7 @@ export function SiteShell({ children }: PropsWithChildren) {
 
   return (
     <div className="app-shell__grid">
+      <TopNav />
       <main className="app-shell__content">
         <div key={pathname}>{children}</div>
       </main>

@@ -14,8 +14,19 @@
   --accent-soft: rgba(0, 122, 255, 0.04);
   --accent-strong: #007aff;
 
-  --text-muted: #6b7280;
-  --text-soft: #9ca3af;
+  /* Text foreground palette — light theme */
+  --fg-1: #363638; /* strongest / headings */
+  --fg-2: #5aa8ff; /* accent text */
+  --fg-3: #d1d1d6; /* secondary text */
+  --fg-4: #e6e6eb; /* muted text */
+  --fg-5: #f2f2f7; /* soft / subtle text */
+  --fg-error-1: #ff375f;
+  --fg-error-2: #ff6482;
+  --fg-primary-1: #007aff;
+
+  /* Legacy helpers mapped onto fg palette */
+  --text-muted: var(--fg-3);
+  --text-soft: var(--fg-4);
 
   --radius-lg: 16px;
   --radius-full: 999px;
@@ -24,7 +35,7 @@
   --shadow-subtle: 0 10px 25px rgba(15, 23, 42, 0.04);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: var(--fg-1);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -63,8 +74,18 @@
     --border-subtle: rgba(148, 163, 184, 0.25);
     --border-strong: rgba(148, 163, 184, 0.4);
 
-    --text-muted: #9ca3af;
-    --text-soft: #6b7280;
+    /* Text foreground palette — system prefers dark */
+    --fg-1: #d1d1d6;
+    --fg-2: #8e8e93;
+    --fg-3: #636366;
+    --fg-4: #48484a;
+    --fg-5: #1c1c1e;
+    --fg-x: #363638;
+    --fg-error-1: #ff375f;
+    --fg-error-2: #ff6482;
+    --fg-primary-1: #5aa8ff;
+
+    --foreground: var(--fg-1);
 
     --shadow-soft: 0 18px 60px rgba(15, 23, 42, 0.5);
     --shadow-subtle: 0 12px 30px rgba(15, 23, 42, 0.45);
@@ -103,6 +124,17 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Text foreground colors mapped to Tailwind utilities */
+  --color-fg-1: var(--fg-1);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-fg-4: var(--fg-4);
+  --color-fg-5: var(--fg-5);
+  --color-fg-error: var(--fg-error-1);
+  --color-fg-error-soft: var(--fg-error-2);
+  --color-fg-primary: var(--fg-primary-1);
+  --font-sans: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -123,8 +155,8 @@ body {
 
 body {
   min-height: 100vh;
-  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    system-ui, -system-ui, "Segoe UI", sans-serif;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
   text-rendering: geometricPrecision;
 }
 
@@ -139,7 +171,7 @@ body {
 
 .app-shell__grid {
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
 }
 
@@ -148,6 +180,18 @@ body {
   padding: 24px 16px 80px;
   max-width: 960px;
   margin: 0 auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @keyframes fade-in-up {
@@ -341,7 +385,7 @@ body {
   flex: 1;
   border: none;
   background: transparent;
-  color: #111827;
+  color: var(--fg-1);
   font-size: 14px;
   outline: none;
 }
@@ -370,7 +414,25 @@ body {
 .dark {
   --background: oklch(0.145 0 0);
 
-  --foreground: oklch(0.985 0 0);
+  /* Surfaces for manual dark toggle (aligned with prefers-color-scheme: dark) */
+  --surface-elevated: #020617;
+  --surface-muted: #030712;
+
+  --border-subtle: rgba(148, 163, 184, 0.25);
+  --border-strong: rgba(148, 163, 184, 0.4);
+
+  /* Text foreground palette — manual dark toggle */
+  --fg-1: #d1d1d6;
+  --fg-2: #8e8e93;
+  --fg-3: #636366;
+  --fg-4: #48484a;
+  --fg-5: #1c1c1e;
+  --fg-x: #363638;
+  --fg-error-1: #ff375f;
+  --fg-error-2: #ff6482;
+  --fg-primary-1: #5aa8ff;
+
+  --foreground: var(--fg-1);
 
   --card: oklch(0.205 0 0);
 

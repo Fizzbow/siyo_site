@@ -14,24 +14,35 @@ export function BlogListItem({ post }: BlogListItemProps) {
     day: "numeric",
   });
 
+
   return (
-    <li className="group rounded-xl px-3 py-3 flex items-start justify-between gap-4 cursor-pointer hover:bg-[rgba(15,23,42,0.92)] transition-colors">
-      <div className="space-y-1">
-        <Link href={`/blog/${post.slug}`}>
-          <h3 className="text-sm font-medium text-[color:var(--foreground)] group-hover:underline underline-offset-4">
-            {post.title}
-          </h3>
-        </Link>
-        <p className="text-xs text-muted line-clamp-2">{post.summary}</p>
-        <div className="flex flex-wrap gap-1 mt-1">
-          <Tag variant="subtle">{post.category}</Tag>
-          {post.tags.slice(0, 2).map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
+    <li className="group relative -mx-4 px-4 py-4 rounded-xl transition-colors hover:bg-surface-muted/50 dark:hover:bg-white/[0.02]">
+      <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-0" />
+      <div className="relative z-10 flex items-start justify-between gap-6">
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <h3 className="text-base font-medium text-fg-1 group-hover:text-fg-primary transition-colors">
+              {post.title}
+            </h3>
+            <p className="text-sm text-muted line-clamp-2 leading-relaxed max-w-2xl">
+              {post.summary}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <span className="text-[11px] text-soft font-medium uppercase tracking-wider">
+              {formatted}
+            </span>
+            <div className="w-0.5 h-0.5 rounded-full bg-border-strong" />
+            <div className="flex items-center gap-2">
+              {post.tags.slice(0, 3).map((tag) => (
+                <span key={tag} className="text-[11px] text-soft group-hover:text-muted transition-colors">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="flex flex-col items-end gap-1">
-        <span className="text-[10px] text-soft">{formatted}</span>
       </div>
     </li>
   );

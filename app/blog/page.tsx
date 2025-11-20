@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogListItem } from "@/components/blog/BlogListItem";
 import { BlogSearch } from "@/components/blog/BlogSearch";
+import { BlogTags } from "@/components/blog/BlogTags";
 import { blogPosts } from "@/data/blogPosts";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   const filtered = blogPosts.filter((post) => {
     if (!category) return true;
-    // 只匹配 tags，不匹配 category
+    // Only match by tags, not category
     return post.tags.some(
       (tag) => tag.toLowerCase() === category.toLowerCase()
     );
@@ -35,8 +36,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   const activeCategoryLabel = category ? (
     <span className="text-xs text-soft">
-      Filtering by{" "}
-      <span className="text-foreground font-medium">{category}</span>
+      Filtering by <span className="text-fg-2 font-medium">{category}</span>
     </span>
   ) : (
     <span className="text-xs text-soft">
@@ -44,75 +44,46 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     </span>
   );
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-      <section className="surface-card p-6 flex flex-col gap-4">
-        <header className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="badge">
-              <span className="badge-dot" />
-              <span>Writing log</span>
-            </div>
-            <div>
-              <h1 className="text-lg font-medium text-neutral-900">Blog</h1>
-              <p className="text-sm text-muted">
-                Notes on frontend, motion design, and product thinking.
-              </p>
-            </div>
-          </div>
-          <BlogSearch posts={blogPosts} />
-        </header>
+  const allTags = Array.from(new Set(blogPosts.flatMap((post) => post.tags)));
 
-        <div className="flex items-center justify-between text-xs">
+  return (
+    <div className="max-w-2xl mx-auto space-y-12">
+      <header className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-4 text-center">
+          <div className="h-6 px-2.5 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400 text-[11px] font-medium uppercase tracking-wider flex items-center">
+            Writing Log
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight text-fg-1">Blog</h1>
+            <p className="text-base text-muted leading-relaxed max-w-md mx-auto">
+              Notes on frontend, motion design, and product thinking.
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full max-w-md space-y-6">
+          <BlogSearch posts={blogPosts} />
+          <BlogTags tags={allTags} activeCategory={category} />
+        </div>
+
+        <div className="w-full flex items-center justify-between pt-2 border-b border-border-subtle pb-4">
           {activeCategoryLabel}
           <Link
             href="/blog"
-            className="text-soft underline-offset-4 hover:underline hover:text-foreground transition-colors"
+            className="text-xs text-soft hover:text-fg-1 transition-colors"
           >
-            Reset
+            Clear filters
           </Link>
         </div>
+      </header>
 
-        <div className="surface-muted mt-2 p-3">
-          <ul className="divide-y divide-[rgba(148,163,184,0.24)]">
-            {sorted.map((post) => (
-              <BlogListItem key={post.slug} post={post} />
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <aside className="flex flex-col gap-4">
-        <div className="surface-muted p-4 space-y-3">
-          <h2 className="text-xs uppercase tracking-[0.18em] text-muted">
-            Tags
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {Array.from(new Set(blogPosts.flatMap((post) => post.tags))).map(
-              (tag) => (
-                <Link
-                  key={tag}
-                  href={`/blog?category=${encodeURIComponent(tag)}`}
-                  className="text-[11px] text-soft px-2 py-1 rounded-full hover:text-foreground transition-colors"
-                >
-                  {tag}
-                </Link>
-              )
-            )}
-          </div>
-        </div>
-
-        <div className="surface-muted p-4 space-y-2 text-xs text-soft">
-          <p>
-            Search runs a fuzzy match on title, summary and tags. Describe what
-            you are looking for in your own words.
-          </p>
-          <p>
-            Over time this section will grow into more structured topics and
-            series.
-          </p>
-        </div>
-      </aside>
+      <div className="min-h-[50vh]">
+        <ul className="space-y-2">
+          {sorted.map((post) => (
+            <BlogListItem key={post.slug} post={post} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

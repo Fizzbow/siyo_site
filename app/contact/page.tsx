@@ -7,54 +7,65 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="surface-card p-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-      <section className="space-y-4">
-        <div className="badge">
-          <span className="badge-dot" />
-          <span>Contact</span>
-        </div>
+    <div className="max-w-2xl mx-auto space-y-12">
+      <header className="space-y-6">
         <div className="space-y-3">
-          <h1 className="text-lg font-medium text-neutral-900">Get in touch</h1>
-          <p className="text-sm text-muted max-w-md">
-            If you have an idea, a side project, or just want to talk about
-            product and interfaces, feel free to reach out.
+          <div className="flex items-center gap-3">
+            <div className="h-6 px-2.5 rounded-full bg-green-500/10 text-green-500 dark:text-green-400 text-[11px] font-medium uppercase tracking-wider flex items-center">
+              Contact
+            </div>
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">Get in touch</h1>
+          <p className="text-base text-muted leading-relaxed max-w-lg">
+            If you have an idea, a side project, or just want to talk about product and interfaces, feel free to reach out.
           </p>
         </div>
+      </header>
 
-        <div className="surface-muted p-4 space-y-3">
-          <div>
-            <p className="text-xs text-soft">Email</p>
+      <div className="grid gap-8 sm:grid-cols-2">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-fg-1">Email</h3>
             <Link
               href="mailto:siyo@example.com"
-              className="text-sm text-neutral-900 underline-offset-4 hover:underline"
+              className="block text-sm text-muted hover:text-fg-primary transition-colors"
             >
               siyo@example.com
             </Link>
           </div>
-          <div>
-            <p className="text-xs text-soft">GitHub</p>
-            <Link
-              href="https://github.com/your-github"
-              className="text-sm text-neutral-900 underline-offset-4 hover:underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              github.com/your-github
-            </Link>
+
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-fg-1">Socials</h3>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="https://github.com/your-github"
+                className="text-sm text-muted hover:text-fg-primary transition-colors"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub
+              </Link>
+              <Link
+                href="https://twitter.com/your-twitter"
+                className="text-sm text-muted hover:text-fg-primary transition-colors"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Twitter
+              </Link>
+            </div>
           </div>
         </div>
-      </section>
 
-      <section className="surface-muted p-4 space-y-3 text-xs text-soft">
-        <p>
-          I&apos;m currently more interested in remote-friendly, product-focused
-          collaborations.
-        </p>
-        <p>
-          A casual email is always welcome — good ideas often start from small,
-          open conversations.
-        </p>
-      </section>
+        <div className="p-6 rounded-2xl bg-surface-muted/50 border border-border-subtle space-y-4">
+          <p className="text-sm text-muted leading-relaxed">
+            I&apos;m currently more interested in remote-friendly, product-focused collaborations.
+          </p>
+          <p className="text-sm text-muted leading-relaxed">
+            A casual email is always welcome — good ideas often start from small, open conversations.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -45,11 +45,17 @@ export function BlogSearch({ posts }: BlogSearchProps) {
     <>
       <button
         type="button"
-        className="dock-button flex items-center gap-2 px-3 text-xs w-auto"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-surface-muted border border-transparent hover:border-border-strong hover:bg-surface-elevated transition-all group cursor-text"
         onClick={() => setOpen(true)}
       >
-        <span className="opacity-70">Search posts</span>
-        <span className="rounded-full border border-[rgba(148,163,184,0.6)] px-1.5 py-0.5 text-[9px] text-soft">
+        <div className="flex items-center gap-2 text-muted group-hover:text-fg-1 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span className="text-xs">Search posts...</span>
+        </div>
+        <span className="flex items-center justify-center h-5 px-1.5 rounded bg-background border border-border-subtle text-[10px] font-medium text-soft">
           ⌘K
         </span>
       </button>
@@ -59,7 +65,7 @@ export function BlogSearch({ posts }: BlogSearchProps) {
           className="search-overlay"
           role="dialog"
           aria-modal="true"
-          aria-label="搜索文章"
+          aria-label="Search posts"
           onClick={() => setOpen(false)}
         >
           <div

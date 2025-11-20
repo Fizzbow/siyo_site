@@ -16,7 +16,7 @@ export const projects: Project[] = [
     slug: "creative-dashboard",
     title: "Creative Dashboard for Independent Makers",
     description:
-      "一套为独立开发者设计的工作台界面，用于管理 roadmap、实验项目和日常工作的轻量化工具。",
+      "A studio-like workspace for independent developers to manage roadmaps, experiments, and everyday tasks in one focused view.",
     role: "Design & Frontend",
     year: "2024",
     category: "product",
@@ -27,7 +27,7 @@ export const projects: Project[] = [
     slug: "motion-playground",
     title: "Motion Playground",
     description:
-      "围绕滚动、鼠标和文本交互构建的一组动效实验，探索如何用细腻的 micro-interaction 让界面变得更有温度。",
+      "A set of motion experiments around scroll, cursor and text interactions, exploring how small micro-interactions can make interfaces feel more human.",
     role: "Creative Coding",
     year: "2023",
     category: "exploration",
@@ -37,7 +37,7 @@ export const projects: Project[] = [
     slug: "typed-ui-kit",
     title: "Typed UI Kit",
     description:
-      "一个面向中小团队的 TypeScript 组件库，提供设计一致、可定制的基础组件，并内置暗色模式和响应式布局。",
+      "A TypeScript-first component library for small teams, with consistent, customizable primitives and built‑in dark mode and responsive layouts.",
     role: "Design System",
     year: "2023",
     category: "open-source",
@@ -45,5 +45,3 @@ export const projects: Project[] = [
     link: "#",
   },
 ];
-
-
