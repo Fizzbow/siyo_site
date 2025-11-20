@@ -8,56 +8,73 @@ import clsx from "clsx";
 interface BlogTagsProps {
     tags: string[];
     activeCategory?: string;
+    align?: "start" | "center" | "end";
 }
 
-export function BlogTags({ tags, activeCategory }: BlogTagsProps) {
+export function BlogTags({ tags, activeCategory, align = "center" }: BlogTagsProps) {
     const [expanded, setExpanded] = useState(false);
-    const INITIAL_COUNT = 10;
+    // Heuristic: if there are many tags, we assume they might wrap.
+    // A safer way without measuring is to just show the button if tags > 7.
+    const showToggle = tags.length > 7;
 
-    const visibleTags = expanded ? tags : tags.slice(0, INITIAL_COUNT);
-    const hasMore = tags.length > INITIAL_COUNT;
+    const justifyClass = {
+        start: "justify-start",
+        center: "justify-center",
+        end: "justify-end",
+    }[align];
+
+    const itemsClass = {
+        start: "items-start",
+        center: "items-center",
+        end: "items-end",
+    }[align];
 
     return (
-        <div className="flex flex-col items-center gap-3 w-full">
-            <div className="flex flex-wrap justify-center gap-1.5">
-                <AnimatePresence mode="popLayout">
-                    {visibleTags.map((tag) => {
-                        const isActive = activeCategory?.toLowerCase() === tag.toLowerCase();
-                        return (
-                            <motion.div
-                                key={tag}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <Link
-                                    href={`/blog?category=${encodeURIComponent(tag)}`}
-                                    className={clsx(
-                                        "px-2.5 py-1 rounded-full text-[11px] font-medium transition-all border",
-                                        isActive
-                                            ? "bg-fg-1 text-background border-fg-1"
-                                            : "bg-surface-muted border-transparent text-muted hover:border-border-strong hover:text-fg-1"
-                                    )}
-                                >
-                                    {tag}
-                                </Link>
-                            </motion.div>
-                        );
-                    })}
-                </AnimatePresence>
-
-                {hasMore && (
-                    <motion.button
-                        layout
-                        onClick={() => setExpanded(!expanded)}
-                        className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface-muted border border-transparent text-soft hover:text-fg-1 hover:border-border-strong transition-all flex items-center gap-1"
-                    >
-                        {expanded ? "Show less" : `+${tags.length - INITIAL_COUNT} more`}
-                    </motion.button>
+        <div className={clsx("flex flex-col gap-2 w-full", itemsClass)}>
+            <motion.div
+                className={clsx(
+                    "flex flex-wrap gap-1.5 overflow-hidden transition-all duration-300 ease-in-out",
+                    justifyClass,
+                    expanded ? "max-h-[500px]" : "max-h-[26px]"
                 )}
-            </div>
+            >
+                {tags.map((tag) => {
+                    const isActive = activeCategory?.toLowerCase() === tag.toLowerCase();
+                    return (
+                        <Link
+                            key={tag}
+                            href={`/blog?category=${encodeURIComponent(tag)}`}
+                            className={clsx(
+                                "px-2.5 py-0.5 rounded-md text-[11px] font-medium transition-all border h-[26px] flex items-center",
+                                isActive
+                                    ? "bg-fg-1 text-background border-fg-1"
+                                    : "bg-surface-muted border-transparent text-muted hover:border-border-strong hover:text-fg-1"
+                            )}
+                        >
+                            {tag}
+                        </Link>
+                    );
+                })}
+            </motion.div>
+
+            {showToggle && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="text-[10px] font-medium text-soft hover:text-fg-1 transition-colors flex items-center gap-1 mt-1"
+                >
+                    {expanded ? (
+                        <>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+                            Show less
+                        </>
+                    ) : (
+                        <>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                            Show more
+                        </>
+                    )}
+                </button>
+            )}
         </div>
     );
 }

@@ -47,35 +47,35 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const allTags = Array.from(new Set(blogPosts.flatMap((post) => post.tags)));
 
   return (
-    <div className="max-w-2xl mx-auto space-y-12">
-      <header className="flex flex-col items-center space-y-8">
-        <div className="flex flex-col items-center space-y-4 text-center">
+    <div className="mx-auto space-y-10">
+      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8">
+        <div className="flex flex-col items-start space-y-4 max-w-md">
           <div className="h-6 px-2.5 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400 text-[11px] font-medium uppercase tracking-wider flex items-center">
             Writing Log
           </div>
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-fg-1">Blog</h1>
-            <p className="text-base text-muted leading-relaxed max-w-md mx-auto">
+            <p className="text-base text-muted leading-relaxed">
               Notes on frontend, motion design, and product thinking.
             </p>
           </div>
         </div>
 
-        <div className="w-full max-w-md space-y-6">
+        <div className="w-full md:max-w-[320px] space-y-4 flex flex-col items-end">
           <BlogSearch posts={blogPosts} />
-          <BlogTags tags={allTags} activeCategory={category} />
-        </div>
-
-        <div className="w-full flex items-center justify-between pt-2 border-b border-border-subtle pb-4">
-          {activeCategoryLabel}
-          <Link
-            href="/blog"
-            className="text-xs text-soft hover:text-fg-1 transition-colors"
-          >
-            Clear filters
-          </Link>
+          <BlogTags tags={allTags} activeCategory={category} align="end" />
         </div>
       </header>
+
+      <div className="w-full flex items-center justify-between pt-2 border-b border-border-subtle pb-3">
+        {activeCategoryLabel}
+        <Link
+          href="/blog"
+          className="text-xs text-soft hover:text-fg-1 transition-colors"
+        >
+          Clear filters
+        </Link>
+      </div>
 
       <div className="min-h-[50vh]">
         <ul className="space-y-2">
@@ -84,6 +84,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           ))}
         </ul>
       </div>
-    </div>
+    </div >
   );
 }

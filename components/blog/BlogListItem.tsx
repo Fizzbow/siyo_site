@@ -24,7 +24,7 @@ export function BlogListItem({ post }: BlogListItemProps) {
             <h3 className="text-base font-medium text-fg-1 group-hover:text-fg-primary transition-colors">
               {post.title}
             </h3>
-            <p className="text-sm text-muted line-clamp-2 leading-relaxed max-w-2xl">
+            <p className="text-sm text-muted line-clamp-2 leading-relaxed">
               {post.summary}
             </p>
           </div>
