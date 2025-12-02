@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Tag } from "@/components/ui/Tag";
 import type { BlogPost } from "@/data/blogPosts";
 
 export interface BlogListItemProps {
@@ -14,10 +13,9 @@ export function BlogListItem({ post }: BlogListItemProps) {
     day: "numeric",
   });
 
-
   return (
-    <li className="group relative -mx-4 px-4 py-4 rounded-xl transition-colors hover:bg-surface-muted/50 dark:hover:bg-white/[0.02]">
-      <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-0" />
+    <li className="group relative -mx-4 px-4 py-4 cursor-pointer rounded-xl transition-colors hover:bg-surface-muted/50 dark:hover:bg-white/[0.02]">
+      <Link href={`/blog/${post.slug}`} className="absolute inset-0 z-20" />
       <div className="relative z-10 flex items-start justify-between gap-6">
         <div className="space-y-2">
           <div className="space-y-1">
@@ -36,7 +34,10 @@ export function BlogListItem({ post }: BlogListItemProps) {
             <div className="w-0.5 h-0.5 rounded-full bg-border-strong" />
             <div className="flex items-center gap-2">
               {post.tags.slice(0, 3).map((tag) => (
-                <span key={tag} className="text-[11px] text-soft group-hover:text-muted transition-colors">
+                <span
+                  key={tag}
+                  className="text-[11px] text-soft group-hover:text-muted transition-colors"
+                >
                   #{tag}
                 </span>
               ))}
@@ -47,5 +48,3 @@ export function BlogListItem({ post }: BlogListItemProps) {
     </li>
   );
 }
-
-

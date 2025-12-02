@@ -1,3 +1,5 @@
+/* app/globals.css */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -17,7 +19,7 @@
   /* Text foreground palette — light theme */
   --fg-1: #363638;
   /* strongest / headings */
-  --fg-2: #5aa8ff;
+  --fg-2: hsl(240, 3.8%, 46.1%);
   /* accent text */
   --fg-3: #d1d1d6;
   /* secondary text */
@@ -140,6 +142,8 @@
   --color-fg-primary: var(--fg-primary-1);
   --font-sans: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -163,6 +167,25 @@ body {
   font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   text-rendering: geometricPrecision;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-3);
 }
 
 .app-shell {
@@ -242,9 +265,11 @@ body {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: radial-gradient(circle at 0% 0%,
-      rgba(148, 163, 184, 0.22),
-      transparent 52%);
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(148, 163, 184, 0.22),
+    transparent 52%
+  );
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -261,9 +286,11 @@ body {
 .pill {
   border-radius: 999px;
   padding: 4px 10px;
-  background: radial-gradient(circle at 0% 0%,
-      rgba(148, 163, 184, 0.18),
-      transparent 52%);
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(148, 163, 184, 0.18),
+    transparent 52%
+  );
 }
 
 .tab-button {
@@ -288,9 +315,11 @@ body {
 
 .tab-button--active {
   color: #f9fafb;
-  background: radial-gradient(circle at 0% 0%,
-      rgba(0, 122, 255, 0.6),
-      transparent 55%);
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(0, 122, 255, 0.6),
+    transparent 55%
+  );
   box-shadow: 0 12px 30px rgba(0, 122, 255, 0.3);
 }
 
@@ -298,19 +327,11 @@ body {
   position: relative;
   padding: 3px;
   border-radius: 999px;
-  background: radial-gradient(circle at 0% 0%,
-      rgba(148, 163, 184, 0.25),
-      transparent 55%);
-}
-
-.dock {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(249, 250, 251, 0.9);
-  box-shadow: 0 10px 25px rgba(148, 163, 184, 0.25);
+  background: radial-gradient(
+    circle at 0% 0%,
+    rgba(148, 163, 184, 0.25),
+    transparent 55%
+  );
 }
 
 .dock-button {

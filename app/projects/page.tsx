@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function ProjectsPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-12">
+    <div className="mx-auto space-y-12">
       <header className="space-y-6">
         <div className="space-y-3">
           <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function ProjectsPage() {
                   <h2 className="text-base font-medium text-fg-1 group-hover:text-fg-primary transition-colors">
                     {project.title}
                   </h2>
-                  <p className="text-sm text-muted leading-relaxed max-w-xl">
+                  <p className="text-sm text-muted leading-relaxed">
                     {project.description}
                   </p>
                 </div>

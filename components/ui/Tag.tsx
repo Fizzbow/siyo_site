@@ -15,7 +15,7 @@ export function Tag({ children, variant = "default" }: TagProps) {
       "border-[color:var(--border-subtle)] bg-[rgba(15,23,42,0.86)] text-soft",
   };
 
-  return <span className={`${base} ${styleByVariant[variant]}`}>{children}</span>;
+  return (
+    <span className={`${base} ${styleByVariant[variant]}`}>{children}</span>
+  );
 }
-
-
