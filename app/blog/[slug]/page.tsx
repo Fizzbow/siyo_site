@@ -77,10 +77,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           backdrop-blur-xl backdrop-saturate-150 bg-white/70  dark:bg-[#0F0F10]/80"
       >
         <Link
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "left-4 top-4 md:left-8 md:top-8"
-          )}
+          className={cn(buttonVariants({ variant: "ghost" }), "z-11")}
           href="/blog"
         >
           <ChevronLeft size={14} />

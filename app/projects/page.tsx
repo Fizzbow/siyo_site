@@ -15,9 +15,12 @@ export default function ProjectsPage() {
               Projects
             </div>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">Selected Work</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">
+            Selected Work
+          </h1>
           <p className="text-base text-muted leading-relaxed">
-            A collection of product work and small experiments. More details live in the Blog.
+            A collection of product work and small experiments. More details
+            live in the Blog.
           </p>
         </div>
       </header>

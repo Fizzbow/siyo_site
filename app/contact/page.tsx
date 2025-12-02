@@ -15,9 +15,12 @@ export default function ContactPage() {
               Contact
             </div>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">Get in touch</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">
+            Get in touch
+          </h1>
           <p className="text-base text-muted leading-relaxed max-w-lg">
-            If you have an idea, a side project, or just want to talk about product and interfaces, feel free to reach out.
+            If you have an idea, a side project, or just want to talk about
+            product and interfaces, feel free to reach out.
           </p>
         </div>
       </header>
@@ -59,10 +62,12 @@ export default function ContactPage() {
 
         <div className="p-6 rounded-2xl bg-surface-muted/50 border border-border-subtle space-y-4">
           <p className="text-sm text-muted leading-relaxed">
-            I&apos;m currently more interested in remote-friendly, product-focused collaborations.
+            I&apos;m currently more interested in remote-friendly,
+            product-focused collaborations.
           </p>
           <p className="text-sm text-muted leading-relaxed">
-            A casual email is always welcome — good ideas often start from small, open conversations.
+            A casual email is always welcome — good ideas often start from
+            small, open conversations.
           </p>
         </div>
       </div>

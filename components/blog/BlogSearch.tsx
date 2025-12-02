@@ -45,19 +45,25 @@ export function BlogSearch({ posts }: BlogSearchProps) {
     <>
       <button
         type="button"
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-surface-muted border border-transparent hover:border-border-strong hover:bg-surface-elevated transition-all group cursor-text"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-surface-muted border border-transparent hover:border-border-strong hover:bg-surface-elevated transition-all group cursor-pointer max-w-xs mx-auto"
         onClick={() => setOpen(true)}
       >
         <div className="flex items-center gap-2 text-muted group-hover:text-fg-1 transition-colors">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <span className="text-xs">Search posts...</span>
+          <span className="text-xs font-medium">Search posts...</span>
         </div>
-        <span className="flex items-center justify-center h-5 px-1.5 rounded bg-background border border-border-subtle text-[10px] font-medium text-soft">
-          ⌘K
-        </span>
       </button>
 
       {open ? (

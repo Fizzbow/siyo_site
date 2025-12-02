@@ -71,10 +71,10 @@ export function TopNav() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3">
+    <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3 pointer-events-none">
       <div
         className={clsx(
-          "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur-2xl backdrop-saturate-150",
+          "pointer-events-auto inline-flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur-2xl backdrop-saturate-150",
           "bg-white/70 border-white/60 shadow-[0_18px_40px_rgba(148,163,184,0.35)]",
           "dark:bg-[#0F0F10]/80",
           "dark:border-white/8",
