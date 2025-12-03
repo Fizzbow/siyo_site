@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </header>
       <div className="relative mx-auto px-6 pt-8 pb-24">
         <div className="min-w-0">
-          <header className="mb-10 space-y-6">
+          <header className="mb-5 space-y-6">
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-xs text-fg-3">
                 <time
@@ -97,13 +97,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 >
                   {formatted}
                 </time>
-                <span className="h-0.5 w-0.5 rounded-full bg-fg-3/50" />
-                <span className="font-medium uppercase tracking-wider text-fg-3">
-                  {post.category}
-                </span>
+                {/* 
+                  <span className="font-medium uppercase tracking-wider text-fg-3">
+                    {post.category}
+                  </span> */}
               </div>
 
-              <h1 className="text-3xl font-bold tracking-tight text-fg-1 sm:text-4xl sm:leading-tight">
+              <h1 className="text-2xl font-semibold tracking-tight text-fg-1flex-1 min-w-0 text-left">
                 {post.title}
               </h1>
             </div>

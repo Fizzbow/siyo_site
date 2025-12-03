@@ -39,14 +39,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <div className="mx-auto space-y-12">
       <header className="flex flex-col items-center justify-center space-y-6 text-center">
-        <div className="space-y-4">
-          <div className="space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-fg-1">
-              Blog
-            </h1>
-          </div>
-        </div>
-
         <div className="w-full max-w-md mx-auto space-y-4">
           <BlogSearch posts={blogPosts} />
           {/* <BlogTags tags={allTags} activeCategory={category} align="center" /> */}

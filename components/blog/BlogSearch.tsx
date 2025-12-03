@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { BlogPost } from "@/data/blogPosts";
+import { BlogTags } from "./BlogTags";
 
 export interface BlogSearchProps {
   posts: BlogPost[];
@@ -89,12 +90,16 @@ export function BlogSearch({ posts }: BlogSearchProps) {
               />
               <button
                 type="button"
-                className="text-xs text-soft hover:text-[color:var(--foreground)]"
+                className="text-xs text-soft"
                 onClick={() => setOpen(false)}
               >
                 Esc
               </button>
             </div>
+
+            <BlogTags
+              tags={Array.from(new Set(posts.flatMap((post) => post.tags)))}
+            />
 
             <div className="search-panel__list">
               {query.length === 0 ? (

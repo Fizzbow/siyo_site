@@ -75,10 +75,9 @@ export function TopNav() {
       <div
         className={clsx(
           "pointer-events-auto inline-flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur-2xl backdrop-saturate-150",
-          "bg-white/70 border-white/60 shadow-[0_18px_40px_rgba(148,163,184,0.35)]",
+          "bg-white/70 border-white/60 ",
           "dark:bg-[#0F0F10]/80",
-          "dark:border-white/8",
-          "dark:shadow-[0_8px_20px_-4px_rgba(0,0,0,0.5)]"
+          "dark:border-white/8"
         )}
         aria-label="Theme toggle"
       >
