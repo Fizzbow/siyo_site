@@ -41,7 +41,7 @@ export default function Home() {
 
         <Link
           href="/projects"
-          className="text-xs text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
+          className="text-xs font-medium text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
         >
           View all
         </Link>
@@ -61,7 +61,7 @@ export default function Home() {
 
         <Link
           href="/blog"
-          className="text-xs text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
+          className="text-xs font-medium text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
         >
           View all
         </Link>
@@ -72,6 +72,7 @@ export default function Home() {
           <BlogCard key={blog.slug} blog={blog} index={index} />
         ))}
       </ul>
+      {/* Debug: {sortedBlogs.length} blogs */}
     </main>
   );
 }
@@ -96,13 +97,13 @@ const ProjectCard = ({
         >
           <div className="flex items-center gap-6">
             {project.icon}
-            <span className="text-sm text-fg-1">
+            <span className="text-sm font-medium text-fg-1">
               {project.title}{" "}
               {/* <span className=" text-fg-primary">{project.slug}</span> */}
             </span>
           </div>
 
-          <span className="text-[10px] text-fg-2">{project.year}</span>
+          <span className="text-xs font-medium text-fg-3">{project.year}</span>
         </Link>
       </FadeIn>
     </li>
@@ -110,25 +111,34 @@ const ProjectCard = ({
 };
 
 const BlogCard = ({ blog, index }: { blog: BlogPost; index: number }) => {
+  const formattedDate = new Date(blog.publishedAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <li key={blog.slug}>
       <FadeIn
         as="div"
         delay={0.1 + index * 0.05}
-        className="group rounded-xl py-2.5 flex items-center justify-between gap-3 cursor-pointer transition-colors hover:bg-neutral-50 "
+        className="group rounded-xl py-2.5 flex items-center justify-between gap-3 cursor-pointer transition-colors hover:bg-neutral-50"
       >
         <Link
           href={`/blog/${blog.slug}`}
           className="flex flex-row w-full justify-between items-start"
         >
-          <span className="text-[10px] text-fg-3 shrink-0">
-            {blog.publishedAt}
-          </span>
-          <div className="flex flex-col max-w-[300px] items-start justify-start w-full gap-2">
-            <span className="text-sm text-fg-1 line-clamp-1 flex-1 min-w-0 text-left">
+          <time
+            dateTime={blog.publishedAt}
+            className="text-xs text-fg-3 font-medium shrink-0"
+          >
+            {formattedDate}
+          </time>
+          <div className="flex  flex-col max-w-[300px] items-start justify-start w-full gap-2">
+            <span className="text-sm font-medium text-fg-1 line-clamp-1 flex-1 min-w-0 text-left">
               {blog.title}
             </span>
-            <span className="text-xs text-fg-3 line-clamp-2">
+            <span className="text-xs font-medium text-fg-3 line-clamp-2">
               {blog.summary}
             </span>
           </div>
