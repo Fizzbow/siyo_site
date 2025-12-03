@@ -5,7 +5,8 @@ import { ChevronLeft } from "lucide-react";
 import { MarkdownRenderer } from "@/components/blog/MarkdownRenderer";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { TableOfContents } from "@/components/blog/TableOfContents";
-import { blogPosts } from "@/data/blogPosts";
+import { apiClient } from "@/lib/api-client";
+import { BlogPost } from "@/types/blog";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,8 @@ interface BlogPostPageProps {
   }>;
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const blogPosts = await apiClient.request<BlogPost[]>("/api/blog");
   return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
@@ -23,13 +25,19 @@ export async function generateMetadata({
   params,
 }: BlogPostPageProps): Promise<Metadata | undefined> {
   const { slug } = await params;
-  const post = blogPosts.find((item) => item.slug === slug);
-  if (!post) return undefined;
+  try {
+    const post = await apiClient.request<BlogPost>(
+      `/api/blog?slug=${encodeURIComponent(slug)}`
+    );
+    if (!post) return undefined;
 
-  return {
-    title: `${post.title} · Siyo`,
-    description: post.summary,
-  };
+    return {
+      title: `${post.title} · Siyo`,
+      description: post.summary,
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 // Helper to extract headings from markdown
@@ -53,7 +61,14 @@ function extractHeadings(markdown: string) {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = blogPosts.find((item) => item.slug === slug);
+  let post: BlogPost;
+  try {
+    post = await apiClient.request<BlogPost>(
+      `/api/blog?slug=${encodeURIComponent(slug)}`
+    );
+  } catch {
+    return notFound();
+  }
 
   if (!post) {
     return notFound();

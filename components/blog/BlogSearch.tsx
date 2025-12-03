@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { BlogPost } from "@/data/blogPosts";
+import type { BlogPost } from "@/types/blog";
 import { BlogTags } from "./BlogTags";
 
 export interface BlogSearchProps {
