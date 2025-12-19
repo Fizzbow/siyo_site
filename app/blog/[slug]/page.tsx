@@ -5,8 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { MarkdownRenderer } from "@/components/blog/MarkdownRenderer";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { TableOfContents } from "@/components/blog/TableOfContents";
-import { apiClient } from "@/lib/api-client";
-import { BlogPost } from "@/types/blog";
+import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +16,7 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams() {
-  const blogPosts = await apiClient.request<BlogPost[]>("/api/blog");
+  const blogPosts = await getAllBlogPosts();
   return blogPosts.map((post) => ({ slug: post.slug }));
 }
 
@@ -26,9 +25,7 @@ export async function generateMetadata({
 }: BlogPostPageProps): Promise<Metadata | undefined> {
   const { slug } = await params;
   try {
-    const post = await apiClient.request<BlogPost>(
-      `/api/blog?slug=${encodeURIComponent(slug)}`
-    );
+    const post = await getBlogPostBySlug(slug);
     if (!post) return undefined;
 
     return {
@@ -61,14 +58,7 @@ function extractHeadings(markdown: string) {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  let post: BlogPost;
-  try {
-    post = await apiClient.request<BlogPost>(
-      `/api/blog?slug=${encodeURIComponent(slug)}`
-    );
-  } catch {
-    return notFound();
-  }
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) {
     return notFound();

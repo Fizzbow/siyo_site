@@ -3,8 +3,7 @@ import type { Metadata } from "next";
 import { BlogListItem } from "@/components/blog/BlogListItem";
 import { BlogSearch } from "@/components/blog/BlogSearch";
 // import { BlogTags } from "@/components/blog/BlogTags";
-import { apiClient } from "@/lib/api-client";
-import { BlogPost } from "@/types/blog";
+import { getAllBlogPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
   title: "Blog · Siyo",
@@ -22,7 +21,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     ? decodeURIComponent(params.category).trim()
     : undefined;
 
-  const blogPosts = await apiClient.request<BlogPost[]>("/api/blog");
+  const blogPosts = await getAllBlogPosts();
 
   const filtered = blogPosts.filter((post) => {
     if (!category) return true;

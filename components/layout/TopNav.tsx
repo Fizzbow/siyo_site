@@ -74,10 +74,9 @@ export function TopNav() {
     <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3 pointer-events-none">
       <div
         className={clsx(
-          "pointer-events-auto inline-flex items-center gap-2 rounded-full border px-3 py-1.5 backdrop-blur-2xl backdrop-saturate-150",
-          "bg-white/70 border-white/60 ",
-          "dark:bg-[#0F0F10]/80",
-          "dark:border-white/8"
+          "pointer-events-auto inline-flex items-center gap-2 rounded-full border px-4 py-2 backdrop-blur-xl transition-all duration-200",
+          "bg-white/20 border-black/5 shadow-sm",
+          "dark:bg-white/5 dark:border-white/10 dark:shadow-none"
         )}
         aria-label="Theme toggle"
       >

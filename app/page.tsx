@@ -2,11 +2,11 @@ import Link from "next/link";
 import { Project, projects } from "@/data/projects";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { TextScramble } from "@/components/motion-primitives/text-scramble";
-import { apiClient } from "@/lib/api-client";
+import { getAllBlogPosts } from "@/lib/blog";
 import { BlogPost } from "@/types/blog";
 
 export default async function Home() {
-  const blogPosts = await apiClient.request<BlogPost[]>("/api/blog");
+  const blogPosts = await getAllBlogPosts();
   const sortedBlogs = [...blogPosts]
     .sort(
       (a, b) =>
