@@ -23,7 +23,7 @@ export default async function Home() {
           </span>
 
           <span className="text-sm font-semibold leading-relaxed text-fg-1">
-            I love work on: creative coding | frontend | UI/UX
+            I love work on: full-stack | frontend | creative coding | UI/UX
           </span>
         </div>
 

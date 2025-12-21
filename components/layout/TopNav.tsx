@@ -40,30 +40,15 @@ const outlineCircleVariants: Variants = {
 };
 
 export function TopNav() {
-  const [mode, setMode] = useState<ThemeMode>("light");
+  const [mode, setMode] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") return "dark";
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+    return saved === "light" ? "light" : "dark";
+  });
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
-    const root = document.documentElement;
-    const initialMode: ThemeMode = root.classList.contains("dark")
-      ? "dark"
-      : "light";
-    if (initialMode !== mode) {
-      queueMicrotask(() => setMode(initialMode));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    const root = document.documentElement;
-    if (mode === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(THEME_STORAGE_KEY, mode);
-    }
+    document.documentElement.classList.toggle("dark", mode === "dark");
+    window.localStorage.setItem(THEME_STORAGE_KEY, mode);
   }, [mode]);
 
   const handleToggle = (next: ThemeMode) => {

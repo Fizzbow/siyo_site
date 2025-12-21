@@ -7,6 +7,7 @@ import { Home, Feather, Layers, Send } from "lucide-react";
 import { motion, type Variants } from "motion/react";
 import clsx from "clsx";
 import { TopNav } from "./TopNav";
+import Orb from "../Orb";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
@@ -64,6 +65,12 @@ export function SiteShell({ children }: PropsWithChildren) {
   return (
     <div className="app-shell__grid">
       <TopNav />
+      <Orb
+        hoverIntensity={0.5}
+        rotateOnHover={true}
+        hue={0}
+        forceHoverState={false}
+      />
       <main className="app-shell__content">
         <div key={pathname}>{children}</div>
       </main>
