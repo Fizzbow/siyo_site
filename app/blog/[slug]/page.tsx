@@ -91,7 +91,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         <ReadingProgress />
       </header>
-      <div className="relative mx-auto px-6 pt-8 pb-24">
+      <div className="relative mx-auto px-6 pt-20 pb-24">
         <div className="min-w-0">
           <header className="mb-5 space-y-6">
             <div className="space-y-4">

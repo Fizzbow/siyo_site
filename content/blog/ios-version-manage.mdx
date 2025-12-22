@@ -1,0 +1,143 @@
+---
+slug: ios-version-manage
+title: iOS Version Management
+publishedAt: 2025-07-10
+category: tech
+tags: [tech]
+summary: A comprehensive guide to managing iOS app versions using Git branching strategies and semantic versioning.
+---
+
+<aside>
+💡
+
+Current version **`3.2`**
+
+</aside>
+
+## Release Process SOP
+
+### 1) Tag 3.2 and Create Maintenance Branch
+
+> Confirm completed commits for 3.2
+
+```jsx
+git log --oneline
+```
+
+> Tag 3.2 (if not already tagged)
+
+```bash
+git tag -a v3.2 -m "release 3.2"
+```
+
+> Create maintenance branch from v3.2 (long-lived, for 3.2.x revisions)
+
+```bash
+git switch -c release/3.2 v3.2
+git push -u origin release/3.2
+git push origin v3.2
+
+```
+
+> For any future requirements that "must be based on 3.2", work on release/3.2.
+
+---
+
+### 2) Continue New Version Development on Main Branch
+
+Common practice: `main` for stable releases; `develop` for daily iterations (if you have this branch). Choose either as your main branch.
+
+> Continue new version development (e.g., 3.3 or 4.0)
+
+```bash
+git switch develop        # or main
+```
+
+> Update version number to 3.3.0 (or 4.0.0), and proceed with normal feature branch iterations.
+
+---
+
+### 3) ⭐️ PM Needs Changes on 3.2: Use Patch Version 3.2.x
+
+> Implement changes on release/3.2, then release 3.2.1, 3.2.2... (incrementing patch number)
+
+```bash
+git switch release/3.2
+
+```
+
+> For changes based on 3.2, it's recommended to create a new patch branch
+
+```bash
+git switch -c fix/abc-on-3.2
+
+```
+
+> Develop and commit
+
+```bash
+git commit -m "fix(3.2): Fix ABC issue"
+```
+
+> Merge back to release/3.2
+
+```bash
+git switch release/3.2
+git merge --no-ff fix/abc-on-3.2
+git push
+```
+
+> After verification passes, tag the patch version and release
+
+```bash
+# Update version file to 3.2.1 (e.g., package.json, pom.xml, pyproject.toml, etc.)
+git commit -am "chore: bump version to 3.2.1"
+
+git tag -a v3.2.1 -m "release 3.2.1"
+git push origin release/3.2
+git push origin v3.2.1
+
+```
+
+---
+
+### 4) Sync 3.2 Fixes Back to Main Branch (Prevent Regression)
+
+Typically use `cherry-pick` to sync fixes to `develop/main`:
+
+```bash
+# Note the fix commit SHA on release/3.2, e.g., abc1234
+git switch develop        # or main
+git cherry-pick -x abc1234
+git push
+```
+
+---
+
+### 5) Reverse Scenario: Fixed on Main First, Want to Backport to 3.2?
+
+Similarly, `cherry-pick` back to `release/3.2`:
+
+```bash
+git switch release/3.2
+git cherry-pick -x <main branch fix commit SHA>
+git push
+```
+
+> Then follow the 3.2.x release process (e.g., 3.2.2, etc.)
+
+---
+
+## 🧩 Naming and Convention Recommendations
+
+- **Branch Naming:**
+  - `release/3.2`: Maintenance branch
+  - `feature/*`: New features
+  - `fix/*`: Bug fixes
+  - `hotfix/*`: Urgent production fixes
+- **Tags:** `vMajor.Minor.Patch`, e.g., `v3.2.1`
+- **Version Numbers Follow Semantic Versioning (SemVer):**
+  - Patch: `3.2.1`, `3.2.2` (backward-compatible fixes)
+  - Minor: `3.3.0` (backward-compatible new features)
+  - Major: `4.0.0` (breaking changes)
+- **Protected Branches:** Protect `main` / `release/3.2`, requiring PR and CI approval before merging.

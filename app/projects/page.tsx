@@ -8,23 +8,6 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="mx-auto space-y-12">
-      <header className="space-y-6">
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-6 px-2.5 rounded-full bg-purple-500/10 text-purple-500 dark:text-purple-400 text-[11px] font-medium uppercase tracking-wider flex items-center">
-              Projects
-            </div>
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-fg-1">
-            Selected Work
-          </h1>
-          <p className="text-base text-muted leading-relaxed">
-            A collection of product work and small experiments. More details
-            live in the Blog.
-          </p>
-        </div>
-      </header>
-
       <ul className="space-y-4">
         {projects.map((project) => (
           <li

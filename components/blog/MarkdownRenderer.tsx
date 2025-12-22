@@ -2,6 +2,12 @@ import type { ReactElement, PropsWithChildren } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import {
+  Prism as SyntaxHighlighter,
+  SyntaxHighlighterProps,
+} from "react-syntax-highlighter";
+import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export interface MarkdownRendererProps {
   markdown: string;
@@ -74,7 +80,7 @@ const ListItem = ({ children }: PropsWithChildren) => (
 );
 
 const BlockQuote = ({ children }: PropsWithChildren) => (
-  <blockquote className="my-6 border-l-4 font-mono font-semibold border-blue-500/30 pl-4 text-sm italic text-fg-2 bg-surface-muted/50 py-3 pr-3 rounded-r-lg">
+  <blockquote className="my-2 border-l-4 font-mono font-semibold border-blue-500/30 pl-4 text-sm italic text-fg-2 bg-surface-muted/50 py-3 pr-3 rounded-r-lg">
     {children}
   </blockquote>
 );
@@ -87,10 +93,52 @@ const Strong = ({ children }: PropsWithChildren) => (
   <strong className="font-semibold text-fg-1">{children}</strong>
 );
 
-const CodeBlock = ({ children }: PropsWithChildren) => {
-  // Note: This component is used for inline code by react-markdown
+const Aside = ({ children }: PropsWithChildren) => {
   return (
-    <code className="rounded-sm  font-mono! font-semibold px-1.5 py-1 text-xs text-fg-primary bg-fg-primary/5 p-3">
+    <aside className="my-6 rounded-md bg-neutral-100/80 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 pl-4 pr-4 py-3">
+      <div className="text-sm font-mono font-semibold leading-relaxed text-fg-2 [&_strong]:text-fg-1 [&_code]:text-fg-primary">
+        {children}
+      </div>
+    </aside>
+  );
+};
+
+const CodeBlock = ({
+  inline,
+  className,
+  children,
+  ...props
+}: SyntaxHighlighterProps) => {
+  const match = /language-(\w+)/.exec(className || "");
+  const language = match ? match[1] : "";
+
+  if (!inline && match) {
+    return (
+      <SyntaxHighlighter
+        {...props}
+        style={nightOwl}
+        language={language}
+        PreTag="div" // We use div because we wrap it in our custom PreBlock style
+        customStyle={{
+          margin: 0,
+          padding: "1.5rem",
+          fontSize: "0.9rem",
+          lineHeight: "1.7",
+          borderRadius: "0.5rem",
+          backgroundColor: "#1e1e1e",
+        }}
+      >
+        {String(children).replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    );
+  }
+
+  // Fallback for inline code or code blocks without language
+  return (
+    <code
+      className="rounded-sm font-mono font-semibold px-1.5 py-0.5 text-xs text-fg-primary bg-fg-primary/5"
+      {...props}
+    >
       {children}
     </code>
   );
@@ -110,7 +158,7 @@ const PreBlock = ({ children }: PropsWithChildren) => {
   );
 };
 
-const components: Components = {
+const components = {
   h1: Heading1,
   h2: Heading2,
   h3: Heading3,
@@ -123,6 +171,7 @@ const components: Components = {
   strong: Strong,
   code: CodeBlock,
   pre: PreBlock,
+  aside: Aside,
 };
 
 export function MarkdownRenderer({
@@ -130,7 +179,11 @@ export function MarkdownRenderer({
 }: MarkdownRendererProps): ReactElement {
   return (
     <article className="max-w-none prose prose-neutral dark:prose-invert prose-headings:scroll-mt-24">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={components as Components}
+      >
         {markdown}
       </ReactMarkdown>
     </article>
