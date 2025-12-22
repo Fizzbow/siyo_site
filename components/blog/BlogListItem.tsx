@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { BlogPost } from "@/data/blogPosts";
+import type { BlogPost } from "@/types/blog";
 
 export interface BlogListItemProps {
   post: BlogPost;
