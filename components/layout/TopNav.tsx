@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion, type Variants } from "motion/react";
 import clsx from "clsx";
-
-type ThemeMode = "light" | "dark";
-const THEME_STORAGE_KEY = "theme";
+import { useTheme } from "next-themes";
+import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 const outlineVariants: Variants = {
   initial: {
@@ -40,20 +40,25 @@ const outlineCircleVariants: Variants = {
 };
 
 export function TopNav() {
-  const [mode, setMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return "dark";
-    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return saved === "light" ? "light" : "dark";
-  });
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
+  // Prevent hydration mismatch
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", mode === "dark");
-    window.localStorage.setItem(THEME_STORAGE_KEY, mode);
-  }, [mode]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
-  const handleToggle = (next: ThemeMode) => {
-    setMode(next);
-  };
+  if (!mounted) {
+    return (
+      <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3 pointer-events-none opacity-0">
+        <div className="h-9" />
+      </header>
+    );
+  }
+
+  // Use resolvedTheme if available, otherwise fallback to theme
+  const currentTheme = resolvedTheme || theme;
 
   return (
     <header className="sticky top-0 z-30 flex justify-center px-7 pt-4 pb-3 pointer-events-none">
@@ -65,12 +70,28 @@ export function TopNav() {
         )}
         aria-label="Theme toggle"
       >
+        <Link href="/">
+          <div
+            style={{
+              background: "url(/favicon.png) no-repeat center center",
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              width: "20px",
+              height: "20px",
+              borderRadius: "4px",
+              marginRight: "9px",
+              cursor: "pointer",
+            }}
+          />
+        </Link>
+
         <motion.button
           type="button"
           className="relative inline-flex h-5 w-5 items-center justify-center"
-          onClick={() => handleToggle("dark")}
-          initial={mode === "dark" ? "hover" : "initial"}
-          animate={mode === "dark" ? "hover" : "initial"}
+          onClick={() => setTheme("dark")}
+          initial={currentTheme === "dark" ? "hover" : "initial"}
+          animate={currentTheme === "dark" ? "hover" : "initial"}
           whileHover="hover"
         >
           <span className="sr-only">Dark mode</span>
@@ -78,7 +99,9 @@ export function TopNav() {
             className={clsx(
               "h-3 w-3 rounded-full transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]",
               "bg-slate-900/95 dark:bg-neutral-",
-              mode === "dark" ? "opacity-100 scale-100" : "opacity-60 scale-95"
+              currentTheme === "dark"
+                ? "opacity-100 scale-100"
+                : "opacity-60 scale-95"
             )}
           />
           <motion.svg
@@ -101,9 +124,9 @@ export function TopNav() {
         <motion.button
           type="button"
           className="relative inline-flex h-5 w-5 items-center justify-center"
-          onClick={() => handleToggle("light")}
-          initial={mode === "light" ? "hover" : "initial"}
-          animate={mode === "light" ? "hover" : "initial"}
+          onClick={() => setTheme("light")}
+          initial={currentTheme === "light" ? "hover" : "initial"}
+          animate={currentTheme === "light" ? "hover" : "initial"}
           whileHover="hover"
         >
           <span className="sr-only">Light mode</span>
@@ -111,7 +134,9 @@ export function TopNav() {
             className={clsx(
               "h-3 w-3 rounded-full transition-all duration-150 ease-[cubic-bezier(0.16,1,0.3,1)]",
               "bg-white/95",
-              mode === "light" ? "opacity-100 scale-100" : "opacity-60 scale-95"
+              currentTheme === "light"
+                ? "opacity-100 scale-100"
+                : "opacity-60 scale-95"
             )}
           />
           <motion.svg
@@ -130,6 +155,63 @@ export function TopNav() {
             />
           </motion.svg>
         </motion.button>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="ml-2 text-[10px] font-medium text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors tracking-wide uppercase cursor-pointer">
+              Contact
+            </button>
+          </DialogTrigger>
+
+          <DialogContent
+            className="sm:max-w-[425px] p-0 border-none bg-transparent shadow-none"
+            showCloseButton={false}
+          >
+            <div className="rounded-[32px] border border-white/20 bg-white/60 dark:bg-neutral-800/80 dark:border-neutral-700/50 backdrop-blur-2xl shadow-2xl p-2">
+              <div className="w-full bg-white dark:bg-[#0A0A0A] rounded-[24px] p-5 overflow-hidden">
+                <div className="flex flex-col gap-1">
+                  <a
+                    href="mailto:navigatoricsl@gmail.com"
+                    className="flex items-center justify-between px-4 py-3.5 -mx-2 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group cursor-pointer"
+                  >
+                    <span className="text-[13px] font-medium text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      Email
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 tracking-wide transition-colors">
+                        navigatoricsl@gmail.com
+                      </span>
+                      <span className="text-blue-600 dark:text-blue-400 text-[10px] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        ↗
+                      </span>
+                    </div>
+                  </a>
+
+                  <div className="h-px bg-neutral-100/80 dark:bg-neutral-800 mx-2" />
+
+                  <a
+                    href="https://github.com/Fizzbow"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between px-4 py-3.5 -mx-2 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group cursor-pointer"
+                  >
+                    <span className="text-[13px] font-medium text-muted-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                      GitHub
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-medium text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 tracking-wide transition-colors">
+                        @Fizzbow
+                      </span>
+                      <span className="text-purple-600 dark:text-purple-400 text-[10px] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                        ↗
+                      </span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </header>
   );

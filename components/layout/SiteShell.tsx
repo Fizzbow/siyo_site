@@ -1,80 +1,84 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import Link from "next/link";
+
 import { usePathname } from "next/navigation";
-import { Home, Feather, Layers, Send } from "lucide-react";
-import { motion, type Variants } from "motion/react";
-import clsx from "clsx";
 import { TopNav } from "./TopNav";
 import Orb from "../Orb";
+import { useTheme } from "next-themes";
 
-const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/blog", label: "Blog", icon: Feather },
-  { href: "/projects", label: "Projects", icon: Layers },
-  { href: "/contact", label: "Contact", icon: Send },
-] as const;
+// const navItems = [
+//   { href: "/", label: "Home", icon: Home },
+//   { href: "/blog", label: "Blog", icon: Feather },
+//   { href: "/projects", label: "Projects", icon: Layers },
+//   { href: "/contact", label: "Contact", icon: Send },
+// ] as const;
 
-const outlineVariants: Variants = {
-  initial: {
-    opacity: 0,
-    scale: 0.75,
-  },
-  hover: {
-    opacity: 1,
-    scale: 1.08,
-    transition: {
-      duration: 0.4,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  },
-};
+// const outlineVariants: Variants = {
+//   initial: {
+//     opacity: 0,
+//     scale: 0.75,
+//   },
+//   hover: {
+//     opacity: 1,
+//     scale: 1.08,
+//     transition: {
+//       duration: 0.4,
+//       ease: [0.16, 1, 0.3, 1],
+//     },
+//   },
+// };
 
-const outlineCircleVariants: Variants = {
-  initial: {
-    strokeDasharray: "6 8",
-    strokeDashoffset: 32,
-    strokeWidth: 0.8,
-  },
-  hover: {
-    strokeDasharray: ["6 8", "3 4", "1 0"] as unknown as string,
-    strokeDashoffset: [32, 16, 0],
-    strokeWidth: [0.8, 0.85, 0.9],
-    transition: {
-      duration: 0.65,
-      ease: "easeInOut",
-    },
-  },
-};
+// const outlineCircleVariants: Variants = {
+//   initial: {
+//     strokeDasharray: "6 8",
+//     strokeDashoffset: 32,
+//     strokeWidth: 0.8,
+//   },
+//   hover: {
+//     strokeDasharray: ["6 8", "3 4", "1 0"] as unknown as string,
+//     strokeDashoffset: [32, 16, 0],
+//     strokeWidth: [0.8, 0.85, 0.9],
+//     transition: {
+//       duration: 0.65,
+//       ease: "easeInOut",
+//     },
+//   },
+// };
 
-const MotionLink = motion(Link);
+// const MotionLink = motion(Link);
 
 export function SiteShell({ children }: PropsWithChildren) {
   const pathname = usePathname();
+  const segments = pathname === "/" ? [] : pathname.split("/").filter(Boolean);
+  const level = segments.length;
 
-  const isActive = (href: string) => {
-    if (href === "/blog") {
-      return pathname === "/blog" || pathname.startsWith("/blog/");
-    }
-    return pathname === href;
-  };
+  // const isActive = (href: string) => {
+  //   if (href === "/blog") {
+  //     return pathname === "/blog" || pathname.startsWith("/blog/");
+  //   }
+  //   return pathname === href;
+  // };
 
-  const isBlogPost = pathname.startsWith("/blog/") && pathname !== "/blog";
+  const belowLevel1 = level <= 1;
+
+  const isShowOrb = useTheme().theme === "dark" && belowLevel1;
 
   return (
     <div className="app-shell__grid">
-      <TopNav />
-      <Orb
-        hoverIntensity={0.5}
-        rotateOnHover={true}
-        hue={0}
-        forceHoverState={false}
-      />
+      {belowLevel1 && <TopNav />}
+      {isShowOrb && (
+        <Orb
+          hoverIntensity={0.5}
+          rotateOnHover={true}
+          hue={0}
+          forceHoverState={false}
+        />
+      )}
       <main className="app-shell__content">
         <div key={pathname}>{children}</div>
       </main>
-      {!isBlogPost && (
+      {/* {belowLevel1 && (
         <footer className="fixed inset-x-0 bottom-6 flex items-center justify-center z-50">
           <div
             className={clsx(
@@ -138,7 +142,7 @@ export function SiteShell({ children }: PropsWithChildren) {
             })}
           </div>
         </footer>
-      )}
+      )} */}
     </div>
   );
 }
