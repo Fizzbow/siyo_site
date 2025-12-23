@@ -41,12 +41,12 @@ export default async function Home() {
           Projects
         </span>
 
-        <Link
+        {/* <Link
           href="/projects"
           className="text-xs font-medium text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
         >
           View all
-        </Link>
+        </Link> */}
       </header>
       {/* <FadeIn as="section" delay={0.01} className="flex flex-col gap-10"> */}
 
@@ -94,7 +94,8 @@ const ProjectCard = ({
         className="group rounded-xl py-2.5 flex items-center justify-between gap-3 cursor-pointer transition-colors hover:bg-neutral-50 "
       >
         <Link
-          href={`/projects/${project.slug}`}
+          // href={`/projects/${project.slug}`}
+          href="#"
           className="flex flex-row w-full justify-between items-center"
         >
           <div className="flex items-center gap-6">
