@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Project, projects } from "@/data/projects";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { TextScramble } from "@/components/motion-primitives/text-scramble";
@@ -63,9 +64,13 @@ export default async function Home() {
 
         <Link
           href="/blog"
-          className="text-xs font-medium text-fg-2 hover:text-fg-primary underline-offset-4 hover:underline transition-colors"
+          className="group relative inline-flex items-center gap-2 text-xs font-medium text-fg-2 hover:text-fg-1 transition-colors"
         >
-          View all
+          <span className="relative">
+            View all
+            <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-fg-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </span>
+          {/* <ArrowRight className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1" /> */}
         </Link>
       </header>
 
@@ -94,8 +99,8 @@ const ProjectCard = ({
         className="group rounded-xl py-2.5 flex items-center justify-between gap-3 cursor-pointer transition-colors hover:bg-neutral-50 "
       >
         <Link
-          // href={`/projects/${project.slug}`}
-          href="#"
+          href={project.link}
+          target={project.link === "#" ? undefined : "_blank"}
           className="flex flex-row w-full justify-between items-center"
         >
           <div className="flex items-center gap-6">
