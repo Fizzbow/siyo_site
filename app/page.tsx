@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Project, projects } from "@/data/projects";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { TextScramble } from "@/components/motion-primitives/text-scramble";
@@ -32,8 +31,8 @@ export default async function Home() {
           as="p"
           className="text-sm leading-relaxed text-fg-1 max-w-xl"
         >
-          A frontend developer who enjoys motion, design systems, and the
-          tension between code and visual storytelling.
+          A builder who codes for the human experience, bridging fluid design
+          systems with full-surface engineering.
         </TextScramble>
       </section>
 
