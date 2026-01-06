@@ -1,13 +1,13 @@
+"use client";
+
 import type { ReactElement, PropsWithChildren } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import {
-  Prism as SyntaxHighlighter,
-  SyntaxHighlighterProps,
-} from "react-syntax-highlighter";
-import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useTheme } from "next-themes";
+
+import CodeBlock from "./CodeBlock";
 
 export interface MarkdownRendererProps {
   markdown: string;
@@ -80,8 +80,8 @@ const ListItem = ({ children }: PropsWithChildren) => (
 );
 
 const BlockQuote = ({ children }: PropsWithChildren) => (
-  <blockquote className="my-2 border-l-4 font-mono font-semibold border-blue-500/30 pl-4 text-sm italic text-fg-2 bg-surface-muted/50 py-3 pr-3 rounded-r-lg">
-    {children}
+  <blockquote className="my-2 border-l-3 font-mono font-semibold border-fg-primary  pl-1 text-sm text-fg-3 pr-3 rounded-r-lg">
+    <div className="dark:bg-neutral-900 py-2 px-2">{children}</div>
   </blockquote>
 );
 
@@ -103,55 +103,20 @@ const Aside = ({ children }: PropsWithChildren) => {
   );
 };
 
-const CodeBlock = ({
-  inline,
-  className,
-  children,
-  ...props
-}: SyntaxHighlighterProps) => {
-  const match = /language-(\w+)/.exec(className || "");
-  const language = match ? match[1] : "";
-
-  if (!inline && match) {
-    return (
-      <SyntaxHighlighter
-        {...props}
-        style={nightOwl}
-        language={language}
-        PreTag="div" // We use div because we wrap it in our custom PreBlock style
-        customStyle={{
-          margin: 0,
-          padding: "1.5rem",
-          fontSize: "0.9rem",
-          lineHeight: "1.7",
-          borderRadius: "0.5rem",
-          backgroundColor: "#1e1e1e",
-        }}
-      >
-        {String(children).replace(/\n$/, "")}
-      </SyntaxHighlighter>
-    );
-  }
-
-  // Fallback for inline code or code blocks without language
-  return (
-    <code
-      className="rounded-sm font-mono font-semibold px-1.5 py-0.5 text-xs text-fg-primary bg-fg-primary/5"
-      {...props}
-    >
-      {children}
-    </code>
-  );
-};
-
 const PreBlock = ({ children }: PropsWithChildren) => {
+  const { resolvedTheme } = useTheme();
+
   return (
     <div className="relative my-8 group">
       {/* Dashed border container */}
       <div className="absolute -inset-2 rounded-xl border-2 border-dashed border-blue-500/20 dark:border-blue-400/10 pointer-events-none" />
 
-      {/* Code content */}
-      <pre className="overflow-x-auto rounded-lg border border-border-subtle bg-[#1e1e1e] p-4 text-sm leading-relaxed text-gray-300 shadow-sm font-mono">
+      {/* 根据主题设置背景色，shiki 的样式会覆盖这个 */}
+      <pre
+        className={`overflow-x-auto rounded-lg p-4 text-sm leading-relaxed font-mono ${
+          resolvedTheme === "dark" ? "bg-[#2e3440]" : "bg-white"
+        }`}
+      >
         {children}
       </pre>
     </div>

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 6543",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -13,7 +13,6 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.0",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gsap": "^3.14.2",
@@ -26,7 +25,6 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-markdown": "^9.0.1",
-    "react-syntax-highlighter": "^16.1.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^3.4.0",
@@ -40,6 +38,7 @@
     "@types/three": "^0.181.0",
     "eslint": "^9",
     "eslint-config-next": "^16.1.0",
+    "shiki": "^3.20.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5"
