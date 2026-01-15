@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import clsx from "clsx";
 import { motion } from "motion/react";
 
@@ -17,10 +17,13 @@ interface TableOfContentsProps {
 export function TableOfContents({ headings }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>("");
   const [isHovered, setIsHovered] = useState(false);
+  const isScrollingRef = useRef(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isScrollingRef.current) return;
+
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
@@ -38,12 +41,28 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     return () => observer.disconnect();
   }, [headings]);
 
+  const handleClick = (e: React.MouseEvent, headingId: string) => {
+    e.preventDefault();
+
+    isScrollingRef.current = true;
+    setActiveId(headingId);
+
+    document.getElementById(headingId)?.scrollIntoView({
+      behavior: "smooth",
+    });
+
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 800);
+  };
+
   if (headings.length === 0) return null;
 
+  // TODO：修改溢出一行时，下面出现的星星点点的东西
   return (
     <motion.div
       className={clsx(
-        "hidden xl:flex fixed right-8 top-32 z-40 flex-col gap-2",
+        "hidden xl:flex fixed right-8 top-32 z-40 flex-col gap-2 overflow-hidden",
         isHovered ? "items-start w-64" : "items-end w-12"
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -55,13 +74,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
           <a
             key={heading.id}
             href={`#${heading.id}`}
-            onClick={(e) => {
-              e.preventDefault();
-              document.querySelector(`#${heading.id}`)?.scrollIntoView({
-                behavior: "smooth",
-              });
-              setActiveId(heading.id);
-            }}
+            onClick={(e) => handleClick(e, heading.id)}
             className={clsx(
               "group flex items-center transition-all duration-200 relative",
               isHovered
@@ -72,7 +85,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             {/* Collapsed State: Horizontal Lines */}
             {!isHovered && (
               <motion.div
-                layoutId={`line-${heading.id}`}
+                key={`line-${heading.id}`}
                 className={clsx(
                   "h-0.5 rounded-full transition-colors duration-300",
                   activeId === heading.id
@@ -91,9 +104,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
             {/* Expanded State: Text Content */}
             {isHovered && (
               <motion.div
+                key={`text-${heading.id}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
                 className={clsx(
                   "text-xs transition-colors duration-200 line-clamp-1 border-l pl-3 py-1",

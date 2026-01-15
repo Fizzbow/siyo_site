@@ -7,7 +7,7 @@ import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -39,18 +39,16 @@ export async function generateMetadata({
 
 // Helper to extract headings from markdown
 function extractHeadings(markdown: string) {
+  const withoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, "");
+
   const headingRegex = /^(#{1,3})\s+(.+)$/gm;
   const headings = [];
   let match;
 
-  while ((match = headingRegex.exec(markdown)) !== null) {
+  while ((match = headingRegex.exec(withoutCodeBlocks)) !== null) {
     const level = match[1].length;
     const text = match[2].trim();
-    const id = text
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^\w\-]+/g, "")
-      .replace(/\-\-+/g, "-");
+    const id = slugify(text);
     headings.push({ id, text, level });
   }
   return headings;
