@@ -6,6 +6,7 @@ import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import Image from 'next/image'
 
 import CodeBlock from "./CodeBlock";
 import { slugify } from "@/lib/utils";
@@ -174,6 +175,14 @@ const PreBlock = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 
+const MdImage = ({ src, alt }: { src: string; alt: string }) => {
+  return (
+    <div className="flex justify-center items-center">
+      <Image src={src} alt={alt} className="my-8" />
+    </div>
+  );
+};
+
 const components = {
   h1: Heading1,
   h2: Heading2,
@@ -188,6 +197,7 @@ const components = {
   code: CodeBlock,
   pre: PreBlock,
   aside: Aside,
+  img: MdImage,
 };
 
 export function MarkdownRenderer({
