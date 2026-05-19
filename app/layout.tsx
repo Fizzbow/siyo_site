@@ -4,11 +4,10 @@ import { SiteShell } from "@/components/layout/SiteShell";
 
 export const metadata: Metadata = {
   icons: {
-    icon: "/favicon.png",
+    icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+    apple: [{ url: "/favicon.png", sizes: "180x180", type: "image/png" }],
   },
-  title: "Siyo · Creative Developer",
-  description:
-    "Siyo · Creative coding, frontend engineering, and thoughtful product experiences.",
+  title: "Siyo",
 };
 
 import { ThemeProvider } from "@/components/theme-provider";
