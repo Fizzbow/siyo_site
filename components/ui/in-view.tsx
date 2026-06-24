@@ -1,11 +1,17 @@
 "use client";
-import { ReactNode, useRef, useState } from "react";
+import {
+  type ElementType,
+  type ReactNode,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   motion,
   useInView,
-  Variant,
-  Transition,
-  UseInViewOptions,
+  type Variant,
+  type Transition,
+  type UseInViewOptions,
 } from "motion/react";
 
 export type InViewProps = {
@@ -16,7 +22,7 @@ export type InViewProps = {
   };
   transition?: Transition;
   viewOptions?: UseInViewOptions;
-  as?: React.ElementType;
+  as?: ElementType;
   once?: boolean;
 };
 
@@ -33,12 +39,12 @@ export function InView({
   as = "div",
   once,
 }: InViewProps) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement | null>(null);
   const isInView = useInView(ref, viewOptions);
 
   const [isViewed, setIsViewed] = useState(false);
 
-  const MotionComponent = motion[as as keyof typeof motion] as typeof as;
+  const MotionComponent = useMemo(() => motion.create(as), [as]);
 
   return (
     <MotionComponent

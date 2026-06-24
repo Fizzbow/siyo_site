@@ -585,3 +585,33 @@ body {
 .ascii-effect-host td {
   vertical-align: top;
 }
+
+.ascii-night-sky__stars {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100dvh;
+  transform: translate(-50%, -50%);
+  color: rgb(212 225 244 / 58%);
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  font-size: 13px;
+  font-variant-ligatures: none;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.08;
+  pointer-events: none;
+  text-align: left;
+  user-select: none;
+  white-space: pre;
+}
+
+@media (max-width: 767px) {
+  .ascii-night-sky__stars {
+    font-size: 12px;
+    line-height: 1.08;
+  }
+}

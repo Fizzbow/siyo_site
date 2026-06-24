@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { AsciiEffectScene } from "@/components/ascii3d/AsciiEffectScene";
+import { AsciiNightSky } from "@/components/ascii3d/AsciiNightSky";
 import { subscribeScrollProgress } from "@/lib/ascii3d/scroll-progress";
 import { cn } from "@/lib/utils";
 
@@ -54,12 +55,13 @@ export function AsciiScrollHero() {
         ref={stickyRef}
         className={cn(
           "sticky top-0 z-10 flex h-[100dvh] w-full items-center justify-center",
-          "overflow-hidden bg-black"
+          "overflow-hidden"
         )}
       >
+        <AsciiNightSky progressRef={progressRef} isActive={isActive} />
         <div
           ref={hostRef}
-          className="ascii-effect-host relative h-full w-full"
+          className="ascii-effect-host relative z-10 h-full w-full"
           aria-hidden
         />
         <AsciiEffectScene

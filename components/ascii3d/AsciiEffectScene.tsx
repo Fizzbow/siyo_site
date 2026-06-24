@@ -15,10 +15,8 @@ import {
   buildAsciiEffectOptions,
   getAsciiEffectResolution,
 } from "@/lib/ascii3d/ascii-effect-options";
-import {
-  getAsciiSquareSize,
-  measureFontCellAspect,
-} from "@/lib/ascii3d/ascii-viewport";
+import { postProcessAsciiTable } from "@/lib/ascii3d/trim-ascii-top";
+import { getAsciiSquareSize } from "@/lib/ascii3d/ascii-viewport";
 
 const TAU = Math.PI * 2;
 
@@ -30,52 +28,17 @@ interface AsciiEffectBridgeProps {
   activeRef: RefObject<boolean>;
 }
 
-function logLayoutMetrics(
-  runId: string,
-  data: Record<string, unknown>
-) {
-  // #region agent log
-  fetch("http://127.0.0.1:7839/ingest/2015b0ad-f4bc-4004-803a-36c082185b1a", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Debug-Session-Id": "1c2c27",
-    },
-    body: JSON.stringify({
-      sessionId: "1c2c27",
-      runId,
-      hypothesisId: "layout-aspect",
-      location: "AsciiEffectScene.tsx",
-      message: "ascii layout metrics",
-      data,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-}
-
 function AsciiEffectBridge({
   hostRef,
   progressRef,
   activeRef,
 }: AsciiEffectBridgeProps) {
   const { gl, scene, camera, size } = useThree();
+  const rendererRef = useRef<WebGLRenderer | null>(null);
 
-  // AsciiEffect y+=2 halves the character row count, making the output visually 2× wider than tall.
-  // Fix: lock camera aspect to 0.5 (tall frustum) so the 3D scene is pre-stretched vertically.
-  // When AsciiEffect compresses rows by 2×, the two effects cancel and the moon looks circular.
-  useEffect(() => {
-    const cam = camera as import("three").PerspectiveCamera;
-    if (!cam.isPerspectiveCamera) return;
-    cam.aspect = 1.3;
-    cam.updateProjectionMatrix();
-  }, [camera, size]);
   const effectRef = useRef<AsciiEffectInstance | null>(null);
   const meshRef = useRef<Object3D | null>(null);
   const allowRenderRef = useRef(false);
-  const loggedLayoutRef = useRef(false);
-  const frameCountRef = useRef(0);
-
   const asciiDim = getAsciiSquareSize(size.width, size.height);
   const resolution = getAsciiEffectResolution();
 
@@ -91,13 +54,12 @@ function AsciiEffectBridge({
     el.style.overflow = "hidden";
   };
 
-  const mountEffect = (dim: number) => {
+  const mountEffect = (dim: number, renderer: WebGLRenderer) => {
     const host = hostRef.current;
     if (!host) {
       return null;
     }
 
-    const renderer = gl as WebGLRenderer;
     const effect = new AsciiEffect(
       renderer,
       ASCII_RAMP_3D,
@@ -105,31 +67,34 @@ function AsciiEffectBridge({
     );
     effect.setSize(dim, dim);
     applyEffectDomLayout(effect, dim);
-    renderer.domElement.style.display = "none";
     host.appendChild(effect.domElement);
     return effect;
   };
 
   useLayoutEffect(() => {
-    const renderer = gl as WebGLRenderer;
+    rendererRef.current = gl as WebGLRenderer;
+    const renderer = rendererRef.current;
+    if (!renderer) {
+      return;
+    }
+
     const originalRender = renderer.render.bind(renderer);
-    renderer.render = (scene, camera, target) => {
+    renderer.render = (scene, camera) => {
       if (!allowRenderRef.current) {
         return;
       }
-      originalRender(scene, camera as never, target);
+      originalRender(scene, camera);
     };
 
-    effectRef.current = mountEffect(asciiDim);
+    effectRef.current = mountEffect(asciiDim, renderer);
+    const host = hostRef.current;
 
     return () => {
       const effect = effectRef.current;
-      const host = hostRef.current;
       if (effect && host?.contains(effect.domElement)) {
         host.removeChild(effect.domElement);
       }
       effectRef.current = null;
-      renderer.domElement.style.display = "";
       renderer.render = originalRender;
     };
   }, [gl, hostRef, asciiDim]);
@@ -146,13 +111,20 @@ function AsciiEffectBridge({
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const rebuild = () => {
+      rendererRef.current = gl as WebGLRenderer;
+      const renderer = rendererRef.current;
+      if (!renderer) {
+        return;
+      }
+
       const host = hostRef.current;
       const prev = effectRef.current;
       if (prev && host?.contains(prev.domElement)) {
         host.removeChild(prev.domElement);
       }
       effectRef.current = mountEffect(
-        getAsciiSquareSize(size.width, size.height)
+        getAsciiSquareSize(size.width, size.height),
+        renderer
       );
     };
     mq.addEventListener("change", rebuild);
@@ -178,20 +150,9 @@ function AsciiEffectBridge({
     effect.render(scene, camera);
     allowRenderRef.current = false;
 
-    frameCountRef.current += 1;
-    if (!loggedLayoutRef.current && hostRef.current && frameCountRef.current > 10) {
-      loggedLayoutRef.current = true;
-      const host = hostRef.current.getBoundingClientRect();
-      const effectEl = effect.domElement.getBoundingClientRect();
-      const font = measureFontCellAspect();
-      // #region agent log
-      // Count actual <tr> and <td> in the AsciiEffect table to find real row/col count
-      const table = effect.domElement.querySelector("table");
-      const actualRows = table ? table.querySelectorAll("tr").length : -1;
-      const firstRow = table ? table.querySelector("tr") : null;
-      const actualCols = firstRow ? firstRow.querySelectorAll("td").length : -1;
-      fetch('http://127.0.0.1:7839/ingest/2015b0ad-f4bc-4004-803a-36c082185b1a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'1c2c27'},body:JSON.stringify({sessionId:'1c2c27',location:'AsciiEffectScene.tsx:useFrame',message:'actual table row/col + layout',data:{asciiDim,resolution,actualRows,actualCols,actualAspect: actualCols/actualRows,cellW:font.cellWidth,cellH:font.cellHeight,heightOverWidth:font.heightOverWidth,effectW:effectEl.width,effectH:effectEl.height,domAspect:effectEl.width/effectEl.height,appliedTransform:'scaleX(0.5)'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
+    const table = effect.domElement.querySelector("table");
+    if (table != null) {
+      postProcessAsciiTable(table);
     }
   });
 
@@ -252,6 +213,7 @@ export function AsciiEffectScene({
         maxHeight: "100%",
         transform: "translate(-50%, -50%)",
         pointerEvents: "none",
+        visibility: "hidden",
       }}
       resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
     >
