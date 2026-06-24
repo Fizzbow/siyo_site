@@ -1,25 +1,38 @@
 "use client";
 
-import type { ReactElement, PropsWithChildren } from "react";
+import React from "react";
+import type { ReactElement, PropsWithChildren, ReactNode } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import Image from 'next/image'
 
 import CodeBlock from "./CodeBlock";
+import { slugify } from "@/lib/utils";
 
 export interface MarkdownRendererProps {
   markdown: string;
 }
 
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\-]+/g, "")
-    .replace(/\-\-+/g, "-");
+// 从 React children 中提取纯文本
+function getTextContent(children: ReactNode): string {
+  if (typeof children === "string") {
+    return children;
+  }
+  if (typeof children === "number") {
+    return String(children);
+  }
+  if (Array.isArray(children)) {
+    return children.map(getTextContent).join("");
+  }
+  if (React.isValidElement(children)) {
+    const props = children.props as { children?: ReactNode };
+    if (props.children) {
+      return getTextContent(props.children);
+    }
+  }
+  return "";
 }
 
 type MdNode = {
@@ -76,7 +89,8 @@ function sectionizeHeadings() {
 }
 
 const Heading1 = ({ children }: PropsWithChildren) => {
-  const id = typeof children === "string" ? slugify(children) : undefined;
+  const text = getTextContent(children);
+  const id = text ? slugify(text) : undefined;
   return (
     <h1
       id={id}
@@ -88,7 +102,8 @@ const Heading1 = ({ children }: PropsWithChildren) => {
 };
 
 const Heading2 = ({ children }: PropsWithChildren) => {
-  const id = typeof children === "string" ? slugify(children) : undefined;
+  const text = getTextContent(children);
+  const id = text ? slugify(text) : undefined;
   return (
     <h2
       id={id}
@@ -100,7 +115,8 @@ const Heading2 = ({ children }: PropsWithChildren) => {
 };
 
 const Heading3 = ({ children }: PropsWithChildren) => {
-  const id = typeof children === "string" ? slugify(children) : undefined;
+  const text = getTextContent(children);
+  const id = text ? slugify(text) : undefined;
   return (
     <h3
       id={id}
@@ -159,6 +175,14 @@ const PreBlock = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 
+const MdImage = ({ src, alt }: { src: string; alt: string }) => {
+  return (
+    <div className="flex justify-center items-center">
+      <Image src={src} alt={alt} className="my-8" />
+    </div>
+  );
+};
+
 const components = {
   h1: Heading1,
   h2: Heading2,
@@ -173,6 +197,7 @@ const components = {
   code: CodeBlock,
   pre: PreBlock,
   aside: Aside,
+  img: MdImage,
 };
 
 export function MarkdownRenderer({

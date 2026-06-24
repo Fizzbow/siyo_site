@@ -1,4 +1,7 @@
 import Link from "next/link";
+import "@fontsource/inter-tight/800.css";
+import "@fontsource/inter-tight/700.css";
+import "@fontsource/inter-tight/600.css";
 import { Project, projects } from "@/data/projects";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { TextScramble } from "@/components/motion-primitives/text-scramble";
@@ -18,7 +21,7 @@ export default async function Home() {
     <main className="flex flex-col gap-6">
       <section className="space-y-2">
         <div className="flex flex-col items-baseline gap-2">
-          <span className="text-2xl font-semibold tracking-tight text-fg-1">
+          <span className="font-inter-tight text-2xl font-bold tracking-tight text-fg-1">
             Siyo
           </span>
 
@@ -37,7 +40,7 @@ export default async function Home() {
       </section>
 
       <header className="flex items-center justify-between mt-10">
-        <span className="uppercase text-base font-semibold tracking-tight text-fg-1">
+        <span className="uppercase text-base font-inter-tight font-bold text-fg-1">
           Projects
         </span>
 
@@ -57,7 +60,7 @@ export default async function Home() {
       </ul>
 
       <header className="flex items-center justify-between mt-10">
-        <span className="uppercase text-base font-semibold tracking-tight text-fg-1">
+        <span className="uppercase text-base font-inter-tight font-bold text-fg-1">
           Blog
         </span>
 
@@ -141,7 +144,7 @@ const BlogCard = ({ blog, index }: { blog: BlogPost; index: number }) => {
           >
             {formattedDate}
           </time>
-          <div className="flex  flex-col max-w-[300px] items-start justify-start w-full gap-2">
+          <div className="flex  flex-col lg:max-w-[300px] max-w-[250px] items-start justify-start w-full gap-2">
             <span className="text-sm font-medium text-fg-1 line-clamp-1 flex-1 min-w-0 text-left">
               {blog.title}
             </span>

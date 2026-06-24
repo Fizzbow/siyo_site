@@ -259,6 +259,10 @@ body {
   color: var(--text-muted);
 }
 
+.font-inter-tight {
+  font-family: "Inter Tight", var(--font-sans);
+}
+
 .md-section > :not(h1):not(h2):not(h3) {
   margin-left: 0.75rem;
 }
@@ -535,5 +539,79 @@ body {
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.ascii-mono-grid {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+}
+
+/* Full-bleed ASCII lab (/ascii) — break out of .app-shell__content max-width */
+.ascii-playground {
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 0;
+  padding-bottom: 0;
+}
+
+.ascii-effect-host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: contrast(1.12);
+}
+
+.ascii-effect-host > div {
+  margin: 0 auto;
+}
+
+.ascii-effect-host table {
+  margin: 0 auto;
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+  line-height: 1;
+  font-weight: 500;
+  text-align: center;
+}
+
+.ascii-effect-host td {
+  vertical-align: top;
+}
+
+.ascii-night-sky__stars {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100dvh;
+  transform: translate(-50%, -50%);
+  color: rgb(212 225 244 / 58%);
+  font-family:
+    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  font-size: 13px;
+  font-variant-ligatures: none;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.08;
+  pointer-events: none;
+  text-align: left;
+  user-select: none;
+  white-space: pre;
+}
+
+@media (max-width: 767px) {
+  .ascii-night-sky__stars {
+    font-size: 12px;
+    line-height: 1.08;
   }
 }

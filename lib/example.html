@@ -1,0 +1,1181 @@
+<!doctype html>
+
+<html class="dark" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ORBITAL_OS_v2.0.4 | LUNAR_LANDER_COCKPIT</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://esm.sh/three@0.160.0",
+          "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      body {
+        background-color: #121414;
+        color: #e3e2e2;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #343535 #121414;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      .glass-panel {
+        background: rgba(18, 20, 20, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      #lander-viewport {
+        --crt-intensity: 0.6;
+        --scan-duration: 8s;
+      }
+      .scanline {
+        width: 100%;
+        height: 2px;
+        background: rgba(255, 255, 255, calc(0.05 * var(--crt-intensity)));
+        position: absolute;
+        z-index: 100;
+        pointer-events: none;
+        animation: scanline var(--scan-duration) linear infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .scanline {
+          animation: none;
+          top: 50%;
+        }
+      }
+      @keyframes scanline {
+        0% {
+          top: 0;
+        }
+        100% {
+          top: 100%;
+        }
+      }
+      .crt-overlay {
+        opacity: var(--crt-intensity);
+        background:
+          linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.03),
+            rgba(0, 255, 0, 0.01),
+            rgba(0, 255, 0, 0.03)
+          );
+        background-size:
+          100% 4px,
+          3px 100%;
+        pointer-events: none;
+      }
+      .crt-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 35;
+        background: rgba(255, 255, 255, 0.92);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 120ms ease-out;
+      }
+      .crt-flash.is-active {
+        opacity: 1;
+      }
+      .hud-glow {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+      }
+      #three-canvas {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .ascii-effect-host {
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: contrast(1.12);
+        pointer-events: none;
+      }
+      .ascii-effect-host > div {
+        margin: 0 auto;
+      }
+      .ascii-effect-host table {
+        margin: 0 auto;
+        font-family:
+          "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, monospace;
+        font-variant-ligatures: none;
+        letter-spacing: 0;
+        line-height: 1;
+        font-weight: 500;
+        text-align: center;
+      }
+      .ascii-effect-host td {
+        vertical-align: top;
+      }
+      #hud-ring.hud-descent {
+        animation: hudPulse 2s ease-in-out infinite;
+      }
+      #hud-ring.hud-touchdown {
+        animation: none;
+        border-color: rgba(255, 255, 255, 0.55);
+      }
+      @keyframes hudPulse {
+        0%,
+        100% {
+          border-color: rgba(198, 198, 199, 0.25);
+        }
+        50% {
+          border-color: rgba(198, 198, 199, 0.55);
+        }
+      }
+      #touchdown-msg.hud-touchdown-visible {
+        transform: scale(1);
+        opacity: 1;
+        letter-spacing: 0.2em;
+      }
+      #side-nav {
+        transition:
+          opacity 0.6s ease,
+          pointer-events 0s linear 0.6s;
+      }
+      #side-nav.side-nav-faded {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+      .hud-accent-descent {
+        color: #c6c6c7 !important;
+        border-color: #c6c6c7 !important;
+      }
+      .hud-accent-descent .bg-primary,
+      .hud-accent-descent .border-primary {
+        background-color: #c6c6c7 !important;
+        border-color: #c6c6c7 !important;
+      }
+    </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#ffdad6",
+              "error-container": "#93000a",
+              "inverse-surface": "#e3e2e2",
+              surface: "#121414",
+              "surface-tint": "#c6c6c7",
+              "on-background": "#e3e2e2",
+              "surface-container-lowest": "#0d0e0f",
+              "on-primary": "#2f3131",
+              primary: "#ffffff",
+              "on-error": "#690005",
+              "surface-container-highest": "#343535",
+              "on-secondary-container": "#b7b4b4",
+              "inverse-primary": "#5d5f5f",
+              "surface-bright": "#383939",
+              "inverse-on-surface": "#303031",
+              "on-secondary-fixed": "#1c1b1b",
+              "on-secondary": "#313030",
+              "on-tertiary-fixed": "#1c1b1b",
+              "on-surface-variant": "#c4c7c8",
+              error: "#ffb4ab",
+              "on-primary-fixed-variant": "#454747",
+              tertiary: "#ffffff",
+              "on-primary-fixed": "#1a1c1c",
+              "on-secondary-fixed-variant": "#474646",
+              "tertiary-fixed": "#e5e2e1",
+              "primary-container": "#e2e2e2",
+              "on-tertiary": "#313030",
+              "secondary-fixed-dim": "#c9c6c5",
+              "secondary-container": "#474646",
+              background: "#121414",
+              "tertiary-fixed-dim": "#c8c6c5",
+              "on-tertiary-fixed-variant": "#474746",
+              "surface-dim": "#121414",
+              "on-primary-container": "#636565",
+              outline: "#8e9192",
+              "tertiary-container": "#e5e2e1",
+              "on-tertiary-container": "#656464",
+              "primary-fixed": "#e2e2e2",
+              "secondary-fixed": "#e5e2e1",
+              "surface-variant": "#343535",
+              "primary-fixed-dim": "#c6c6c7",
+              "surface-container": "#1f2020",
+              "outline-variant": "#444748",
+              "on-surface": "#e3e2e2",
+              "surface-container-low": "#1b1c1c",
+              "surface-container-high": "#292a2a",
+              secondary: "#c9c6c5",
+            },
+            fontFamily: {
+              "headline-lg": ["JetBrains Mono"],
+              "code-snippet": ["JetBrains Mono"],
+              "body-md": ["JetBrains Mono"],
+              "label-sm": ["Space Mono"],
+              "headline-md": ["JetBrains Mono"],
+              "body-lg": ["JetBrains Mono"],
+            },
+            fontSize: {
+              "headline-lg": [
+                "32px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "-0.02em",
+                  fontWeight: "700",
+                },
+              ],
+              "code-snippet": [
+                "13px",
+                { lineHeight: "1.5", fontWeight: "400" },
+              ],
+              "label-sm": [
+                "11px",
+                {
+                  lineHeight: "1.2",
+                  letterSpacing: "0.15em",
+                  fontWeight: "500",
+                },
+              ],
+              "headline-md": [
+                "20px",
+                {
+                  lineHeight: "1.4",
+                  letterSpacing: "0.05em",
+                  fontWeight: "600",
+                },
+              ],
+            },
+            spacing: {
+              gutter: "16px",
+              "margin-desktop": "48px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="font-body-md text-on-surface">
+    <section id="scroll-section" class="relative min-h-[600vh] w-full">
+      <!-- UI LAYER: Top NavBar -->
+      <header
+        class="fixed top-0 w-full z-50 flex justify-between items-center h-16 px-gutter bg-background/80 backdrop-blur-xl border-b border-outline-variant/30"
+      >
+        <div
+          class="font-headline-md text-headline-md font-bold tracking-tighter text-primary"
+        >
+          ORBITAL_OS_v2.0.4
+        </div>
+        <nav class="hidden md:flex gap-8">
+          <a
+            class="font-label-sm text-label-sm text-primary border-b border-primary pb-1 transition-all duration-300"
+            href="#"
+            >MISSION_CTRL</a
+          >
+          <a
+            class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-all duration-300"
+            href="#"
+            >TELEMETRY</a
+          >
+          <a
+            class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-all duration-300"
+            href="#"
+            >LOGS</a
+          >
+        </nav>
+        <div class="flex items-center gap-4 text-primary">
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-surface-container-highest/20 p-2 rounded transition-all"
+            >satellite_alt</span
+          >
+          <span
+            class="material-symbols-outlined cursor-pointer hover:bg-surface-container-highest/20 p-2 rounded transition-all"
+            >settings_input_component</span
+          >
+        </div>
+      </header>
+      <!-- UI LAYER: SideNavBar (Left) -->
+      <aside
+        id="side-nav"
+        class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 z-40 flex flex-col py-4 px-2 bg-surface-container/10 backdrop-blur-md border-r border-outline-variant/20 hidden md:flex"
+      >
+        <div class="px-3 mb-8">
+          <h2 class="font-headline-md text-headline-md text-primary">
+            ORBITAL_READER
+          </h2>
+          <p
+            class="font-label-sm text-label-sm text-on-surface-variant opacity-70"
+          >
+            LUNAR_DESCENT_04
+          </p>
+        </div>
+        <div class="flex flex-col gap-1 flex-1">
+          <button
+            class="bg-primary text-background flex items-center gap-3 p-3 font-bold transition-all duration-75 active:scale-95"
+          >
+            <span class="material-symbols-outlined">explore</span>
+            <span class="font-label-sm text-label-sm">01/DESCENT</span>
+          </button>
+          <button
+            class="text-on-surface-variant flex items-center gap-3 p-3 hover:bg-white/5 transition-all"
+          >
+            <span class="material-symbols-outlined">analytics</span>
+            <span class="font-label-sm text-label-sm">02/GEOLOGY</span>
+          </button>
+          <button
+            class="text-on-surface-variant flex items-center gap-3 p-3 hover:bg-white/5 transition-all"
+          >
+            <span class="material-symbols-outlined">route</span>
+            <span class="font-label-sm text-label-sm">03/LANDING_SITE</span>
+          </button>
+          <button
+            class="text-on-surface-variant flex items-center gap-3 p-3 hover:bg-white/5 transition-all"
+          >
+            <span class="material-symbols-outlined">sensors</span>
+            <span class="font-label-sm text-label-sm">04/HOUSTON</span>
+          </button>
+        </div>
+        <div class="mt-auto border-t border-outline-variant/20 pt-4">
+          <button
+            class="w-full py-3 px-4 border border-primary text-primary font-label-sm hover:bg-primary hover:text-background transition-all"
+          >
+            RE-SYNC_COMMS
+          </button>
+          <div
+            class="mt-4 flex items-center gap-3 p-3 text-on-surface-variant font-label-sm"
+          >
+            <span class="material-symbols-outlined">memory</span>
+            <span>OS_STABLE</span>
+          </div>
+        </div>
+      </aside>
+      <!-- CORE: Cockpit / HUD Overlay -->
+      <main
+        class="fixed inset-0 z-0 flex items-center justify-center bg-background"
+      >
+        <div
+          class="relative w-full h-full overflow-hidden"
+          id="lander-viewport"
+        >
+          <div id="ascii-host" class="ascii-effect-host"></div>
+          <canvas id="three-canvas"></canvas>
+          <div class="scanline"></div>
+          <div class="crt-overlay absolute inset-0 z-30"></div>
+          <div class="crt-flash" id="crt-flash"></div>
+          <!-- HUD: Central Crosshair -->
+          <div
+            class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+          >
+            <div
+              class="relative w-48 h-48 border-[0.5px] border-primary/20 rounded-full flex items-center justify-center transition-colors duration-300"
+              id="hud-ring"
+            >
+              <div class="w-24 h-[1px] bg-primary/40 absolute"></div>
+              <div class="h-24 w-[1px] bg-primary/40 absolute"></div>
+              <div class="absolute -top-12 flex flex-col items-center gap-1">
+                <div
+                  class="font-label-sm text-primary text-[10px] tracking-[0.2em] transition-opacity duration-300"
+                  id="hud-status"
+                >
+                  ACQUIRING_ORBIT...
+                </div>
+                <div
+                  class="font-headline-md text-primary text-xl scale-0 opacity-0 transition-all duration-300 hud-glow"
+                  id="touchdown-msg"
+                >
+                  TOUCHDOWN
+                </div>
+              </div>
+              <div
+                class="absolute w-24 h-24 border border-primary/60 scale-0 opacity-0 transition-all duration-300"
+                id="landing-box"
+              ></div>
+            </div>
+          </div>
+          <!-- HUD: Left Telemetry -->
+          <div
+            class="absolute left-10 md:left-margin-desktop top-1/2 -translate-y-1/2 flex flex-col gap-8 z-40 pointer-events-none"
+          >
+            <div
+              class="glass-panel p-4 border-l-4 border-l-primary w-52 transition-colors duration-300"
+              id="panel-l1"
+            >
+              <div
+                class="text-on-surface-variant text-[10px] mb-1 font-label-sm"
+                id="label-l1"
+              >
+                ORBIT_VELOCITY (m/s)
+              </div>
+              <div
+                class="font-headline-md text-primary tabular-nums text-2xl"
+                id="val-l1"
+              >
+                1,625
+              </div>
+              <div class="w-full h-[1px] bg-outline-variant/30 mt-2">
+                <div
+                  class="h-full bg-primary transition-all duration-300"
+                  id="meter-l1"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+            <div
+              class="glass-panel p-4 border-l-4 border-l-outline-variant w-52"
+            >
+              <div
+                class="text-on-surface-variant text-[10px] mb-1 font-label-sm"
+                id="label-l2"
+              >
+                SELENO_POS (LONG)
+              </div>
+              <div
+                class="font-headline-md text-primary tabular-nums text-2xl"
+                id="val-l2"
+              >
+                0.0000°
+              </div>
+            </div>
+          </div>
+          <!-- HUD: Right Telemetry -->
+          <div
+            class="absolute right-10 md:right-margin-desktop top-1/2 -translate-y-1/2 flex flex-col gap-8 z-40 items-end pointer-events-none"
+          >
+            <div
+              class="glass-panel p-4 border-r-4 border-r-primary text-right w-52"
+              id="panel-fuel"
+            >
+              <div
+                class="text-on-surface-variant text-[10px] mb-1 font-label-sm"
+              >
+                FUEL_RESERVE
+              </div>
+              <div
+                class="w-full h-2 bg-surface-container-highest mt-2 relative overflow-hidden"
+              >
+                <div
+                  class="absolute right-0 top-0 h-full bg-primary transition-all duration-300"
+                  id="fuel-bar"
+                  style="width: 82%"
+                ></div>
+              </div>
+              <div
+                class="text-[10px] mt-1 text-primary font-label-sm"
+                id="fuel-pct"
+              >
+                82.4%
+              </div>
+            </div>
+            <div
+              class="glass-panel p-4 border-r-4 border-r-outline-variant text-right w-52 transition-colors duration-300"
+              id="panel-r2"
+            >
+              <div
+                class="text-on-surface-variant text-[10px] mb-1 font-label-sm"
+                id="label-r2"
+              >
+                BURN_T-min
+              </div>
+              <div
+                class="font-headline-md text-primary tabular-nums text-2xl"
+                id="val-r2"
+              >
+                120.0s
+              </div>
+            </div>
+          </div>
+          <!-- HUD: Bottom Status -->
+          <div
+            class="absolute bottom-20 left-1/2 -translate-x-1/2 w-full max-w-2xl px-6 z-40 pointer-events-none"
+          >
+            <div
+              class="flex justify-between items-center font-label-sm text-primary/50 text-[10px] bg-background/90 p-2 border border-outline-variant/20"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-2 h-2 rounded-full bg-primary animate-pulse"
+                ></span>
+                <span>LD_RADAR: NOMINAL</span>
+              </div>
+              <div id="pitch-yaw-display">P: 0.0° | Y: 0.0° | R: 0.0°</div>
+              <div class="hidden sm:block">APOLLO_STATION_LINK_43.1</div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- UI LAYER: Footer -->
+      <footer
+        class="fixed bottom-0 w-full z-50 flex justify-between items-center h-12 px-gutter bg-background/90 border-t border-outline-variant/30 font-code-snippet text-code-snippet text-on-surface-variant"
+      >
+        <div class="text-primary font-bold">©2024 DEEP_SPACE_INITIATIVE</div>
+        <div class="flex gap-6 items-center">
+          <span class="text-primary animate-pulse" id="scroll-prompt"
+            >[SCROLL_TO_INITIATE_DESCENT]</span
+          >
+          <span class="hover:text-primary cursor-pointer">TERMINAL_LINK</span>
+          <span class="hover:text-primary cursor-pointer">VECTOR_DATA</span>
+        </div>
+      </footer>
+    </section>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { AsciiEffect } from "three/addons/effects/AsciiEffect.js";
+
+      const ASCII_RAMP_3D =
+        " .'`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+      const ORBIT_END = 0.6;
+      const SCROLL_IDLE_EPSILON = 0.0007;
+      const HUD_EPSILON = 0.001;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      // --- Scroll progress ---
+      function computeScrollProgress(sectionEl, scrollY = window.scrollY) {
+        const start = sectionEl.offsetTop;
+        const scrollableDistance = sectionEl.offsetHeight - window.innerHeight;
+        if (scrollableDistance <= 0) {
+          return scrollY >= start ? 1 : 0;
+        }
+        return Math.min(1, Math.max(0, (scrollY - start) / scrollableDistance));
+      }
+
+      const scrollSection = document.getElementById("scroll-section");
+      const landerViewport = document.getElementById("lander-viewport");
+
+      const state = {
+        targetScroll: 0,
+        scroll: reducedMotion ? 0.25 : 0,
+        isActive: true,
+      };
+
+      let scrollRafId = 0;
+      let needsContinuousRender = true;
+
+      function scheduleScrollRead() {
+        if (scrollRafId !== 0) return;
+        scrollRafId = requestAnimationFrame(() => {
+          scrollRafId = 0;
+          state.targetScroll = reducedMotion
+            ? 0.25
+            : computeScrollProgress(scrollSection);
+        });
+      }
+
+      function wakeMain() {
+        needsContinuousRender = true;
+        ensureMainLoop();
+      }
+
+      window.addEventListener(
+        "scroll",
+        () => {
+          scheduleScrollRead();
+          wakeMain();
+        },
+        { passive: true },
+      );
+      window.addEventListener("resize", scheduleScrollRead);
+      scheduleScrollRead();
+
+      const viewportObserver = new IntersectionObserver(
+        ([entry]) => {
+          state.isActive = entry.isIntersecting;
+          if (state.isActive) {
+            ensureMainLoop();
+          }
+        },
+        { threshold: 0.05 },
+      );
+      viewportObserver.observe(landerViewport);
+
+      // --- Easing helpers ---
+      function smoothstep(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+      }
+
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function getAsciiResolution() {
+        return window.matchMedia("(max-width: 767px)").matches ? 0.17 : 0.24;
+      }
+
+      function getAsciiDim() {
+        // Return {w, h} for the full viewport — ASCII fills the whole screen.
+        return { w: window.innerWidth, h: window.innerHeight };
+      }
+
+      function measureCellAspect() {
+        // Measure actual JetBrains Mono cell dimensions at runtime.
+        const canvas2 = document.createElement("canvas");
+        const ctx2 = canvas2.getContext("2d");
+        const isMobile = window.matchMedia("(max-width: 767px)").matches;
+        const fontSize = isMobile ? 12 : 13;
+        ctx2.font = `${fontSize}px "JetBrains Mono", ui-monospace, monospace`;
+        const cellW = ctx2.measureText("M").width || fontSize * 0.6;
+        const cellH = fontSize * 1.08;
+        // scaleY compensates so the rendered sphere appears circular.
+        // We want cellW/cellH ratio applied to the Y axis of the output table.
+        return cellW / cellH;
+      }
+
+      // --- Moon textures ---
+      function createMoonTextures() {
+        const size = 256;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#888";
+        ctx.fillRect(0, 0, size, size);
+
+        const imageData = ctx.getImageData(0, 0, size, size);
+        const data = imageData.data;
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const i = (y * size + x) * 4;
+            const nx = x / size;
+            const ny = y / size;
+            const n =
+              Math.sin(nx * 28) * Math.cos(ny * 22) * 0.08 +
+              Math.sin(nx * 67 + ny * 41) * 0.06 +
+              (Math.random() - 0.5) * 0.04;
+            const v = Math.max(0.35, Math.min(0.95, 0.68 + n));
+            data[i] = v * 255;
+            data[i + 1] = v * 255;
+            data[i + 2] = v * 255;
+            data[i + 3] = 255;
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+
+        for (let c = 0; c < 18; c++) {
+          const cx = Math.random() * size;
+          const cy = Math.random() * size;
+          const r = 4 + Math.random() * 14;
+          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+          g.addColorStop(0, "rgba(40,40,40,0.55)");
+          g.addColorStop(1, "rgba(40,40,40,0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const map = new THREE.CanvasTexture(canvas);
+        map.colorSpace = THREE.SRGBColorSpace;
+        const bump = map.clone();
+        return { map, bump };
+      }
+
+      // --- Three.js + AsciiEffect ---
+      const canvas = document.getElementById("three-canvas");
+      const asciiHost = document.getElementById("ascii-host");
+      const renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: false,
+        alpha: false,
+        preserveDrawingBuffer: true,
+        powerPreference: "high-performance",
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 1);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000,
+      );
+
+      const { map: moonMap, bump: moonBump } = createMoonTextures();
+      const moon = new THREE.Mesh(
+        new THREE.SphereGeometry(5, 32, 32),
+        new THREE.MeshStandardMaterial({
+          map: moonMap,
+          bumpMap: moonBump,
+          bumpScale: 0.08,
+          roughness: 0.92,
+          metalness: 0.05,
+        }),
+      );
+      scene.add(moon);
+
+      // Restore natural deep-space star field behind moon.
+      const starGeo = new THREE.BufferGeometry();
+      const starCount = 3000;
+      const posArray = new Float32Array(starCount * 3);
+      for (let i = 0; i < starCount; i++) {
+        // Place on a large sphere shell so stars are uniformly distributed
+        // and always behind the moon at all camera angles.
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 200 + Math.random() * 100;
+        posArray[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        posArray[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        posArray[i * 3 + 2] = r * Math.cos(phi);
+      }
+      starGeo.setAttribute("position", new THREE.BufferAttribute(posArray, 3));
+      const stars = new THREE.Points(
+        starGeo,
+        new THREE.PointsMaterial({
+          size: 0.9,
+          color: 0xe6edff,
+          transparent: true,
+          opacity: 0.75,
+          sizeAttenuation: true,
+        }),
+      );
+      scene.add(stars);
+
+      const landingPad = new THREE.Mesh(
+        new THREE.RingGeometry(0.35, 0.55, 4),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          wireframe: true,
+          transparent: true,
+          opacity: 0,
+        }),
+      );
+      landingPad.rotation.x = -Math.PI / 2;
+      landingPad.position.set(4.98, 0.15, 0);
+      landingPad.visible = false;
+      moon.add(landingPad);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.18));
+      const dirMain = new THREE.DirectionalLight(0xffffff, 2.1);
+      dirMain.position.set(7, 11, 8);
+      scene.add(dirMain);
+      const dirFill = new THREE.DirectionalLight(0xffffff, 0.35);
+      dirFill.position.set(-6, 4, 5);
+      scene.add(dirFill);
+      const pointLight = new THREE.PointLight(0xffffff, 0.9, 12);
+      pointLight.position.set(2, 1, 6);
+      scene.add(pointLight);
+      const rimLight = new THREE.DirectionalLight(0xffffff, 0.15);
+      rimLight.position.set(0, -6, -3);
+      scene.add(rimLight);
+
+      let asciiDim = getAsciiDim();
+      const effect = new AsciiEffect(renderer, ASCII_RAMP_3D, {
+        resolution: getAsciiResolution(),
+        scale: 1,
+        color: false,
+        alpha: false,
+        block: false,
+        invert: true,
+      });
+
+      function applyEffectLayout({ w, h }) {
+        effect.setSize(w, h);
+        // AsciiEffect internally samples at iWidth = floor(w*resolution) cols
+        // and iHeight = floor(h*resolution) rows, stepping y+=2 per row.
+        // iWidth/iHeight ≈ w/h, so the correct camera aspect is simply w/h —
+        // the canvas already has the right proportions, and the y-step-2 is
+        // compensated by Courier New's narrow width at the chosen font-size.
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        const el = effect.domElement;
+        el.style.position = "absolute";
+        el.style.inset = "0";
+        el.style.width = "100%";
+        el.style.height = "100%";
+        el.style.transform = "none";
+        el.style.overflow = "hidden";
+      }
+
+      applyEffectLayout(asciiDim);
+      asciiHost.appendChild(effect.domElement);
+
+      const cameraPos = new THREE.Vector3(0, 3, 30);
+      const cameraTarget = new THREE.Vector3(0, 0, 0);
+      const orbitPos = new THREE.Vector3();
+      const descentStartPos = new THREE.Vector3();
+      // Camera skims the horizon: approach from +X side, staying above the equator.
+      // Moon radius = 5. End position is ~3 units above surface at X=14, looking
+      // toward the moon's limb so the curved horizon fills the lower half of frame.
+      const descentEndPos = new THREE.Vector3(12, 6, 0);
+      const descentStartTarget = new THREE.Vector3(0, 0, 0);
+      const descentEndTarget = new THREE.Vector3(0, 4.5, 0);
+      const originTarget = new THREE.Vector3(0, 0, 0);
+      const shakeOffset = new THREE.Vector3();
+
+      // --- HUD elements ---
+      const valL1 = document.getElementById("val-l1");
+      const meterL1 = document.getElementById("meter-l1");
+      const valL2 = document.getElementById("val-l2");
+      const valR2 = document.getElementById("val-r2");
+      const labelL1 = document.getElementById("label-l1");
+      const labelR2 = document.getElementById("label-r2");
+      const hudStatus = document.getElementById("hud-status");
+      const touchdownMsg = document.getElementById("touchdown-msg");
+      const landingBox = document.getElementById("landing-box");
+      const pyDisplay = document.getElementById("pitch-yaw-display");
+      const scrollPrompt = document.getElementById("scroll-prompt");
+      const fuelBar = document.getElementById("fuel-bar");
+      const fuelPct = document.getElementById("fuel-pct");
+      const hudRing = document.getElementById("hud-ring");
+      const panelL1 = document.getElementById("panel-l1");
+      const panelR2 = document.getElementById("panel-r2");
+      const sideNav = document.getElementById("side-nav");
+      const crtFlash = document.getElementById("crt-flash");
+
+      const phaseFlags = {
+        landingBoxShown: false,
+        touchdownShown: false,
+        touchdownFlashDone: false,
+      };
+
+      const hudCache = {
+        lastProgress: -1,
+        frame: 0,
+        pitchYawText: "",
+      };
+
+      let cameraPitchDeg = 0;
+      let touchdownShakeStart = 0;
+
+      function resetPhaseFlags() {
+        phaseFlags.landingBoxShown = false;
+        phaseFlags.touchdownShown = false;
+        phaseFlags.touchdownFlashDone = false;
+        gsap.set(landingBox, { scale: 0, opacity: 0 });
+        gsap.set(touchdownMsg, { scale: 0, opacity: 0 });
+        touchdownMsg.classList.remove("hud-touchdown-visible");
+        hudRing.classList.remove("hud-touchdown");
+      }
+
+      function updateCrt(progress, p2) {
+        if (p2 > 0.98) {
+          landerViewport.style.setProperty("--crt-intensity", "1");
+          landerViewport.style.setProperty("--scan-duration", "2s");
+          if (!phaseFlags.touchdownFlashDone) {
+            phaseFlags.touchdownFlashDone = true;
+            crtFlash.classList.add("is-active");
+            setTimeout(() => crtFlash.classList.remove("is-active"), 200);
+          }
+        } else if (progress >= ORBIT_END) {
+          landerViewport.style.setProperty("--crt-intensity", "0.85");
+          landerViewport.style.setProperty("--scan-duration", "4s");
+        } else {
+          landerViewport.style.setProperty("--crt-intensity", "0.6");
+          landerViewport.style.setProperty("--scan-duration", "8s");
+        }
+      }
+
+      function updateHUD(progress, frameCount) {
+        if (
+          Math.abs(progress - hudCache.lastProgress) < HUD_EPSILON &&
+          frameCount % 8 !== 0
+        ) {
+          return;
+        }
+        hudCache.lastProgress = progress;
+
+        sideNav.classList.toggle("side-nav-faded", progress > ORBIT_END);
+        hudRing.classList.toggle(
+          "hud-descent",
+          progress >= ORBIT_END && progress < 0.98,
+        );
+
+        if (progress < ORBIT_END) {
+          if (phaseFlags.landingBoxShown || phaseFlags.touchdownShown) {
+            resetPhaseFlags();
+          }
+
+          const p1 = progress / ORBIT_END;
+          panelL1.classList.remove("hud-accent-descent");
+          panelR2.classList.remove("hud-accent-descent");
+
+          const nextLabelL1 = "ORBIT_VELOCITY (m/s)";
+          const nextValL1 = "1,625";
+          const nextMeter = "100%";
+          const nextValL2 = (p1 * 360).toFixed(4) + "°";
+          const nextLabelR2 = "BURN_T-min";
+          const nextValR2 = ((ORBIT_END - progress) * 200).toFixed(1) + "s";
+          const nextStatus = "ORBITAL_PHASE: NOMINAL";
+          const nextPrompt = "[SCROLL_TO_INITIATE_DESCENT]";
+
+          if (labelL1.textContent !== nextLabelL1)
+            labelL1.textContent = nextLabelL1;
+          if (valL1.textContent !== nextValL1) valL1.textContent = nextValL1;
+          if (meterL1.style.width !== nextMeter)
+            meterL1.style.width = nextMeter;
+          if (valL2.textContent !== nextValL2) valL2.textContent = nextValL2;
+          if (labelR2.textContent !== nextLabelR2)
+            labelR2.textContent = nextLabelR2;
+          if (valR2.textContent !== nextValR2) valR2.textContent = nextValR2;
+          if (hudStatus.textContent !== nextStatus)
+            hudStatus.textContent = nextStatus;
+          if (scrollPrompt.textContent !== nextPrompt)
+            scrollPrompt.textContent = nextPrompt;
+
+          const fuel = 82.4;
+          const fuelStr = `${fuel.toFixed(1)}%`;
+          if (fuelBar.style.width !== "82%") fuelBar.style.width = "82%";
+          if (fuelPct.textContent !== fuelStr) fuelPct.textContent = fuelStr;
+
+          updateCrt(progress, 0);
+        } else {
+          const p2 = (progress - ORBIT_END) / 0.4;
+          const altitude = Math.max(0, 15000 * (1 - p2));
+          const pitch = (1 - p2) * 55;
+          const fuel = 82.4 - p2 * 64.4;
+
+          panelL1.classList.add("hud-accent-descent");
+          panelR2.classList.add("hud-accent-descent");
+
+          const nextLabelL1 = "ALTITUDE_m";
+          const nextValL1 = Math.floor(altitude).toLocaleString();
+          const nextMeter = `${(1 - p2) * 100}%`;
+          const nextValL2 = (p2 * 125).toFixed(1);
+          const nextLabelR2 = "PITCH_ANGLE";
+          const nextValR2 = pitch.toFixed(1) + "°";
+          const nextStatus =
+            p2 > 0.98
+              ? "LANDING_CONFIRMED"
+              : p2 < 0.95
+                ? "POWERED_DESCENT"
+                : "FINAL_APPROACH";
+          const nextPrompt =
+            p2 > 0.98 ? "[TOUCHDOWN_SITE_STABLE]" : "[MAINTAIN_DESCENT_VECTOR]";
+
+          if (labelL1.textContent !== nextLabelL1)
+            labelL1.textContent = nextLabelL1;
+          if (valL1.textContent !== nextValL1) valL1.textContent = nextValL1;
+          if (meterL1.style.width !== nextMeter)
+            meterL1.style.width = nextMeter;
+          if (valL2.textContent !== nextValL2) valL2.textContent = nextValL2;
+          if (labelR2.textContent !== nextLabelR2)
+            labelR2.textContent = nextLabelR2;
+          if (valR2.textContent !== nextValR2) valR2.textContent = nextValR2;
+          if (hudStatus.textContent !== nextStatus)
+            hudStatus.textContent = nextStatus;
+          if (scrollPrompt.textContent !== nextPrompt)
+            scrollPrompt.textContent = nextPrompt;
+
+          const fuelWidth = `${Math.max(18, fuel)}%`;
+          const fuelStr = `${fuel.toFixed(1)}%`;
+          if (fuelBar.style.width !== fuelWidth)
+            fuelBar.style.width = fuelWidth;
+          if (fuelPct.textContent !== fuelStr) fuelPct.textContent = fuelStr;
+
+          const padOpacity = Math.max(0, (p2 - 0.55) * 2.2);
+          if (padOpacity > 0 && !landingPad.visible) landingPad.visible = true;
+          landingPad.material.opacity = padOpacity;
+
+          if (p2 > 0.7 && !phaseFlags.landingBoxShown) {
+            phaseFlags.landingBoxShown = true;
+            gsap.to(landingBox, { scale: 1, opacity: 0.5, duration: 0.3 });
+          }
+
+          if (p2 > 0.98 && !phaseFlags.touchdownShown) {
+            phaseFlags.touchdownShown = true;
+            touchdownShakeStart = performance.now();
+            gsap.to(touchdownMsg, {
+              scale: 1,
+              opacity: 1,
+              duration: 0.35,
+              ease: "power2.out",
+            });
+            touchdownMsg.classList.add("hud-touchdown-visible");
+            hudRing.classList.add("hud-touchdown");
+            hudRing.classList.remove("hud-descent");
+          }
+
+          updateCrt(progress, p2);
+        }
+
+        if (frameCount % 8 === 0) {
+          const yaw = (progress * 90).toFixed(1);
+          const roll = (Math.sin(progress * 12) * 0.4).toFixed(1);
+          const pitchText = cameraPitchDeg.toFixed(1);
+          const nextPy = `P: ${pitchText}° | Y: ${yaw}° | R: ${roll}°`;
+          if (hudCache.pitchYawText !== nextPy) {
+            hudCache.pitchYawText = nextPy;
+            pyDisplay.textContent = nextPy;
+          }
+        }
+      }
+
+      function updateCamera(progress, now) {
+        let pitchDeg = 0;
+
+        if (progress < 0.55) {
+          const p1 = progress / ORBIT_END;
+          const radius = THREE.MathUtils.lerp(28, 22, p1);
+          const angle = p1 * Math.PI * 0.5;
+          // Keep camera at y=0 (equatorial) so sphere appears centered.
+          // A small upward shift of the lookAt target compensates for the
+          // header/footer chrome that eats ~15% of the viewport height.
+          orbitPos.set(Math.sin(angle) * radius, 0, Math.cos(angle) * radius);
+          cameraPos.copy(orbitPos);
+          cameraTarget.set(0, 0, 0);
+          moon.position.x = 0;
+        } else if (progress < 0.65) {
+          const blend = smoothstep(0.55, 0.65, progress);
+          const p1 = 0.55 / ORBIT_END;
+          const radius = THREE.MathUtils.lerp(30, 22, p1);
+          const angle = p1 * Math.PI * 0.5;
+          orbitPos.set(
+            Math.sin(angle) * radius,
+            THREE.MathUtils.lerp(3, 2, p1),
+            Math.cos(angle) * radius,
+          );
+          descentStartPos.set(
+            Math.sin(Math.PI * 0.5) * 22,
+            2,
+            Math.cos(Math.PI * 0.5) * 22,
+          );
+          cameraPos.lerpVectors(orbitPos, descentStartPos, blend);
+          cameraTarget.lerpVectors(originTarget, descentStartTarget, blend);
+          moon.position.x = 0;
+        } else {
+          const p2 = easeInOutCubic((progress - ORBIT_END) / 0.4);
+          descentStartPos.set(
+            Math.sin(Math.PI * 0.5) * 22,
+            2,
+            Math.cos(Math.PI * 0.5) * 22,
+          );
+          cameraPos.lerpVectors(descentStartPos, descentEndPos, p2);
+          cameraTarget.lerpVectors(descentStartTarget, descentEndTarget, p2);
+          pitchDeg = p2 * 55;
+          moon.position.x = 0;
+        }
+
+        if (progress >= ORBIT_END) {
+          const p2 = (progress - ORBIT_END) / 0.4;
+          moon.rotation.y += 0.001 * Math.max(0, 1 - p2);
+        } else {
+          moon.rotation.y += 0.003;
+        }
+
+        shakeOffset.set(0, 0, 0);
+        if (phaseFlags.touchdownShown && touchdownShakeStart > 0) {
+          const elapsed = now - touchdownShakeStart;
+          if (elapsed < 150) {
+            const amp = 0.06 * (1 - elapsed / 150);
+            shakeOffset.set(
+              Math.sin(elapsed * 0.08) * amp,
+              Math.cos(elapsed * 0.1) * amp * 0.5,
+              0,
+            );
+          }
+        }
+
+        camera.position.copy(cameraPos).add(shakeOffset);
+        camera.lookAt(cameraTarget);
+        cameraPitchDeg = pitchDeg;
+      }
+
+      // --- Main loop ---
+      let mainRafId = 0;
+      let idleFrames = 0;
+      let frameCount = 0;
+
+      function ensureMainLoop() {
+        if (mainRafId === 0) {
+          mainRafId = requestAnimationFrame(tickMain);
+        }
+      }
+
+      function tickMain(now) {
+        mainRafId = 0;
+        if (!state.isActive) return;
+
+        frameCount += 1;
+        const prevScroll = state.scroll;
+        state.scroll += (state.targetScroll - state.scroll) * 0.08;
+        const deltaScroll = Math.abs(state.targetScroll - state.scroll);
+        const progress = state.scroll;
+
+        if (deltaScroll > SCROLL_IDLE_EPSILON) {
+          idleFrames = 0;
+          needsContinuousRender = true;
+        } else {
+          idleFrames += 1;
+        }
+
+        const moonMoving =
+          progress < ORBIT_END || (progress >= ORBIT_END && progress < 0.999);
+        const shouldRender =
+          needsContinuousRender ||
+          deltaScroll > SCROLL_IDLE_EPSILON ||
+          moonMoving ||
+          idleFrames < 6 ||
+          phaseFlags.touchdownShown;
+
+        if (shouldRender) {
+          updateCamera(progress, now);
+          updateHUD(progress, frameCount);
+          effect.render(scene, camera);
+        }
+
+        if (
+          deltaScroll <= SCROLL_IDLE_EPSILON &&
+          idleFrames > 6 &&
+          !moonMoving
+        ) {
+          needsContinuousRender = false;
+        } else {
+          mainRafId = requestAnimationFrame(tickMain);
+        }
+      }
+
+      function handleResize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        // camera.aspect is managed by applyEffectLayout to match the non-square
+        // AsciiEffect buffer — don't override it here with the viewport ratio.
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        asciiDim = getAsciiDim();
+        applyEffectLayout(asciiDim);
+
+        scheduleScrollRead();
+        wakeMain();
+      }
+
+      window.addEventListener("resize", handleResize);
+
+      document.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("mousedown", () =>
+          gsap.to(btn, { scale: 0.96, duration: 0.1 }),
+        );
+        btn.addEventListener("mouseup", () =>
+          gsap.to(btn, { scale: 1, duration: 0.1 }),
+        );
+      });
+
+      ensureMainLoop();
+    </script>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 
 import { usePathname } from "next/navigation";
 import { TopNav } from "./TopNav";
@@ -61,8 +62,19 @@ export function SiteShell({ children }: PropsWithChildren) {
   // };
 
   const belowLevel1 = level <= 1;
+  const isAsciiLab = pathname === "/ascii";
 
-  const isShowOrb = useTheme().theme === "dark" && belowLevel1;
+  const themeState = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard for next-themes
+    setMounted(true);
+  }, []);
+
+  const currentTheme = themeState.resolvedTheme || themeState.theme;
+  const isShowOrb =
+    mounted && currentTheme === "dark" && belowLevel1 && !isAsciiLab;
 
   return (
     <div className="app-shell__grid">
