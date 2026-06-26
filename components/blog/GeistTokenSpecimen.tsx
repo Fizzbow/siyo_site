@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import CodeBlock from "./CodeBlock";
+
 type ColorToken = {
   name: string;
   light: string;
@@ -364,6 +366,37 @@ function ComponentPreview({ name }: { name: string }) {
   );
 }
 
+function cssPropertyName(tokenKey: string) {
+  const propertyMap: Record<string, string> = {
+    backgroundColor: "background-color",
+    textColor: "color",
+    typography: "font",
+    rounded: "border-radius",
+    padding: "padding",
+    height: "height",
+  };
+
+  return propertyMap[tokenKey] ?? tokenKey.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+}
+
+function cssTokenValue(value: string) {
+  const tokenMatch = value.match(/^\{(.+)\}$/);
+
+  if (!tokenMatch) {
+    return value;
+  }
+
+  return `var(--${tokenMatch[1].replace(/\./g, "-")})`;
+}
+
+function componentCss(token: ComponentToken) {
+  const declarations = token.values
+    .map(([key, value]) => `  ${cssPropertyName(key)}: ${cssTokenValue(value)};`)
+    .join("\n");
+
+  return `.${token.name} {\n${declarations}\n}`;
+}
+
 function ElevationPreview({ token }: { token: ColorToken }) {
   return (
     <span
@@ -620,12 +653,14 @@ export function GeistTokenBlock({ type }: { type?: string }) {
               <div className="token-catalog__component" key={token.name}>
                 <strong>{token.name}</strong>
                 <ComponentPreview name={token.name} />
-                {token.values.map(([key, value]) => (
-                  <div key={key}>
-                    <span>{key}</span>
-                    <code>{value}</code>
-                  </div>
-                ))}
+                <CodeBlock
+                  className="language-css"
+                  containerClassName="token-catalog__component-code"
+                  frameClassName="token-catalog__component-code-frame"
+                  bodyClassName="token-catalog__component-code-body"
+                >
+                  {componentCss(token)}
+                </CodeBlock>
               </div>
             ))}
           </div>

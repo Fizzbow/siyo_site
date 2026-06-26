@@ -6,9 +6,13 @@ import { getSingletonHighlighter } from "shiki";
 import { useTheme } from "next-themes";
 import type { ComponentProps, ComponentPropsWithoutRef } from "react";
 import { Check, Copy, Terminal } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CodeBlockProps extends ComponentProps<"code"> {
   inline?: boolean;
+  containerClassName?: string;
+  frameClassName?: string;
+  bodyClassName?: string;
 }
 
 // 创建高亮器实例的单例
@@ -73,6 +77,9 @@ const CopyButton = ({ text }: { text: string }) => {
 const CodeBlock = ({
   inline,
   className,
+  containerClassName,
+  frameClassName,
+  bodyClassName,
   children,
   ...props
 }: CodeBlockProps) => {
@@ -140,8 +147,13 @@ const CodeBlock = ({
 
   // 虚线样式的代码块外壳
   return (
-    <div className="relative my-8 group">
-      <div className="relative flex flex-col rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 bg-transparent overflow-hidden">
+    <div className={cn("relative my-8 group", containerClassName)}>
+      <div
+        className={cn(
+          "relative flex flex-col rounded-lg border border-dashed border-neutral-200 dark:border-neutral-800 bg-transparent overflow-hidden",
+          frameClassName
+        )}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-1.5 border-b border-neutral-200 dark:border-neutral-800 bg-transparent">
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider text-fg-3">
@@ -152,7 +164,12 @@ const CodeBlock = ({
         </div>
 
         {/* Code body */}
-        <div className="relative overflow-x-auto p-4 font-mono text-sm leading-relaxed">
+        <div
+          className={cn(
+            "relative overflow-x-auto p-4 font-mono text-sm leading-relaxed",
+            bodyClassName
+          )}
+        >
           {!highlightedCode ? (
             <code
               className={`${className} whitespace-pre`}
