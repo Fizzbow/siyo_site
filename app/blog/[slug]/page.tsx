@@ -9,6 +9,9 @@ import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog";
 import { buttonVariants } from "@/components/ui/button";
 import { cn, slugify } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface BlogPostPageProps {
   params: Promise<{
     slug: string;
