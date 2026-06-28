@@ -466,6 +466,60 @@ function ColorScale({
   );
 }
 
+function parseMeasurePx(value: string) {
+  return Number.parseInt(value, 10) || 0;
+}
+
+function MeasureScale({
+  title,
+  tokens,
+  kind,
+}: {
+  title: string;
+  tokens: Array<[string, string]>;
+  kind: "spacing" | "radius";
+}) {
+  const maxPx = Math.max(...tokens.map(([, value]) => parseMeasurePx(value)), 1);
+
+  return (
+    <div className="token-catalog__scale token-catalog__scale--measure">
+      <strong className="token-catalog__scale-title">{title}</strong>
+      <div className="token-catalog__measure-items">
+        {tokens.map(([name, value]) => (
+          <div
+            className={
+              kind === "spacing"
+                ? "token-catalog__measure-item token-catalog__measure-item--spacing"
+                : "token-catalog__measure-item"
+            }
+            key={name}
+            title={kind === "spacing" ? `${name} · ${value}` : undefined}
+            style={
+              kind === "spacing"
+                ? ({
+                    "--measure-ratio": `${(parseMeasurePx(value) / maxPx) * 100}%`,
+                  } as React.CSSProperties)
+                : ({
+                    "--radius-size": value,
+                  } as React.CSSProperties)
+            }
+          >
+            <small title={name}>{name}</small>
+            {kind === "spacing" ? (
+              <span className="token-catalog__measure-bar" aria-hidden="true" />
+            ) : (
+              <>
+                <span className="token-catalog__measure-radius" aria-hidden="true" />
+                <code>{value}</code>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ColorScales({
   groups,
 }: {
@@ -480,6 +534,69 @@ function ColorScales({
           tokens={group.tokens}
         />
       ))}
+    </div>
+  );
+}
+
+function componentSelectLabel(name: string) {
+  return name.replace(/^(button|input)-/, "");
+}
+
+function SelectableComponentCatalog({
+  tokens,
+}: {
+  tokens: ComponentToken[];
+}) {
+  const [selectedName, setSelectedName] = React.useState(tokens[0]?.name ?? "");
+  const selectedToken =
+    tokens.find((token) => token.name === selectedName) ?? tokens[0];
+  const buttonOptions = tokens.filter((token) => token.name.startsWith("button-"));
+  const inputOptions = tokens.filter((token) => token.name.startsWith("input"));
+
+  if (!selectedToken) {
+    return null;
+  }
+
+  return (
+    <div className="token-catalog__component-row">
+      <div className="token-catalog__component-controls">
+        <label
+          className="token-catalog__select-label token-catalog__select-label--component"
+          aria-label="component"
+        >
+          <select
+            className="token-catalog__select token-catalog__select--component"
+            value={selectedToken.name}
+            onChange={(event) => setSelectedName(event.target.value)}
+          >
+            <optgroup label="button">
+              {buttonOptions.map((token) => (
+                <option key={token.name} value={token.name}>
+                  {componentSelectLabel(token.name)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="input">
+              {inputOptions.map((token) => (
+                <option key={token.name} value={token.name}>
+                  {componentSelectLabel(token.name)}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </label>
+        <div className="token-catalog__component-preview-slot">
+          <ComponentPreview name={selectedToken.name} />
+        </div>
+      </div>
+      <CodeBlock
+        className="language-css"
+        containerClassName="token-catalog__component-code"
+        frameClassName="token-catalog__component-code-frame"
+        bodyClassName="token-catalog__component-code-body"
+      >
+        {componentCss(selectedToken)}
+      </CodeBlock>
     </div>
   );
 }
@@ -606,64 +723,19 @@ export function GeistTokenBlock({ type }: { type?: string }) {
     case "spacing":
       return (
         <TokenShell>
-          <div
-            className="token-catalog__measure-grid"
-            style={{ "--measure-count": spacingTokens.length } as React.CSSProperties}
-          >
-            {spacingTokens.map(([name, value]) => (
-              <div
-                className="token-catalog__measure-card"
-                key={name}
-                style={{ "--measure-size": value } as React.CSSProperties}
-              >
-                <span className="token-catalog__space-sample" />
-                <strong>{name}</strong>
-                <code>{value}</code>
-              </div>
-            ))}
-          </div>
+          <MeasureScale title="scale" tokens={spacingTokens} kind="spacing" />
         </TokenShell>
       );
     case "rounded":
       return (
         <TokenShell>
-          <div
-            className="token-catalog__measure-grid"
-            style={{ "--measure-count": roundedTokens.length } as React.CSSProperties}
-          >
-            {roundedTokens.map(([name, value]) => (
-              <div
-                className="token-catalog__measure-card"
-                key={name}
-                style={{ "--radius-size": value } as React.CSSProperties}
-              >
-                <span className="token-catalog__radius-sample" />
-                <strong>{name}</strong>
-                <code>{value}</code>
-              </div>
-            ))}
-          </div>
+          <MeasureScale title="radius" tokens={roundedTokens} kind="radius" />
         </TokenShell>
       );
     case "components":
       return (
         <TokenShell>
-          <div className="token-catalog__component-grid">
-            {componentTokens.map((token) => (
-              <div className="token-catalog__component" key={token.name}>
-                <strong>{token.name}</strong>
-                <ComponentPreview name={token.name} />
-                <CodeBlock
-                  className="language-css"
-                  containerClassName="token-catalog__component-code"
-                  frameClassName="token-catalog__component-code-frame"
-                  bodyClassName="token-catalog__component-code-body"
-                >
-                  {componentCss(token)}
-                </CodeBlock>
-              </div>
-            ))}
-          </div>
+          <SelectableComponentCatalog tokens={componentTokens} />
         </TokenShell>
       );
     case "elevation":

@@ -79,8 +79,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <TableOfContents headings={headings} />
 
       <header
-        className="fixed left-0 right-0 mx-auto max-w-6xl flex justify-between items-center top-0 z-10 pt-8
-          backdrop-blur-xl backdrop-saturate-150 bg-white/70  dark:bg-[#0F0F10]/80"
+        className="fixed left-0 right-0 mx-auto max-w-6xl flex justify-between items-center top-0 z-10 pt-8"
       >
         <Link
           className={cn(buttonVariants({ variant: "ghost" }), "z-11")}
