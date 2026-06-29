@@ -137,7 +137,7 @@ const CodeBlock = ({
   if (isInline) {
     return (
       <code
-        className="px-1.5 py-0.5 rounded-sm bg-neutral-100 dark:bg-neutral-800 text-fg-primary font-mono text-[0.85em]"
+        className="px-1.5 py-0.5 rounded-sm bg-neutral-100 font-mono text-[0.85em] text-[var(--geist-gray-1000)] dark:bg-neutral-800"
         {...restProps}
       >
         {children}

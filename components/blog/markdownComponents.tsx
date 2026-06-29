@@ -157,33 +157,83 @@ function containsBlockComponent(children: ReactNode, blockComponents: unknown[])
   });
 }
 
+const InListContext = React.createContext(false);
+
 const createParagraph = (blockComponents: unknown[]) => {
   const Paragraph = ({ children }: PropsWithChildren) => {
     if (containsBlockComponent(children, blockComponents)) {
       return <>{children}</>;
     }
 
-    return <p className="text-sm leading-7 text-fg-2">{children}</p>;
+    const inList = React.useContext(InListContext);
+
+    if (inList) {
+      return (
+        <span className="contents text-sm leading-7 text-fg-2 text-pretty">
+          {children}
+        </span>
+      );
+    }
+
+    return <p className="text-sm leading-7 text-fg-2 text-pretty">{children}</p>;
   };
 
   return Paragraph;
 };
 
-const UnorderedList = ({ children }: PropsWithChildren) => (
-  <ul className="mb-5 ml-5 list-disc space-y-2 text-sm leading-7 text-fg-2 marker:text-fg-4">
-    {children}
-  </ul>
+const ListKindContext = React.createContext<"ul" | "ol">("ul");
+
+const listProviders = (kind: "ul" | "ol", children: ReactNode) => (
+  <ListKindContext.Provider value={kind}>
+    <InListContext.Provider value={true}>{children}</InListContext.Provider>
+  </ListKindContext.Provider>
 );
 
-const OrderedList = ({ children }: PropsWithChildren) => (
-  <ol className="mb-5 ml-5 list-decimal space-y-2 text-sm leading-7 text-fg-2 marker:text-fg-4">
-    {children}
-  </ol>
+const UnorderedList = ({ children }: PropsWithChildren) =>
+  listProviders(
+    "ul",
+    <ul className="mb-5 list-none space-y-2 pl-0 text-sm leading-7 text-fg-2">
+      {children}
+    </ul>
+  );
+
+const OrderedList = ({ children }: PropsWithChildren) =>
+  listProviders(
+    "ol",
+    <ol className="mb-5 list-none space-y-2 pl-0 text-sm leading-7 text-fg-2 [counter-reset:md-ol]">
+      {children}
+    </ol>
+  );
+
+const UnorderedListItem = ({ children }: PropsWithChildren) => (
+  <li className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2">
+    <span
+      className="shrink-0 self-start text-sm leading-7 text-fg-2/60 select-none"
+      aria-hidden="true"
+    >
+      •
+    </span>
+    <div className="min-w-0 text-pretty [overflow-wrap:anywhere]">{children}</div>
+  </li>
 );
 
-const ListItem = ({ children }: PropsWithChildren) => (
-  <li className="pl-1">{children}</li>
+const OrderedListItem = ({ children }: PropsWithChildren) => (
+  <li className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-2 [counter-increment:md-ol]">
+    <span
+      className="shrink-0 self-start text-sm leading-7 tabular-nums text-fg-2/60 select-none before:content-[counter(md-ol)'.']"
+      aria-hidden="true"
+    />
+    <div className="min-w-0 text-pretty [overflow-wrap:anywhere]">{children}</div>
+  </li>
 );
+
+const ListItem = ({ children }: PropsWithChildren) => {
+  const kind = React.useContext(ListKindContext);
+  if (kind === "ol") {
+    return <OrderedListItem>{children}</OrderedListItem>;
+  }
+  return <UnorderedListItem>{children}</UnorderedListItem>;
+};
 
 type SpanProps = PropsWithChildren<{
   "data-term-tooltip"?: string | boolean;

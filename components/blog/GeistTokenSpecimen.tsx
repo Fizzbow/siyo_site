@@ -235,7 +235,7 @@ const typographyTokens: TypeToken[] = [
   { name: "copy-13-mono", family: "Geist Mono", size: "13px", weight: "400", lineHeight: "18px" },
 ];
 
-const spacingTokens = [
+const spacingTokens: Array<[string, string]> = [
   ["1", "4px"],
   ["2", "8px"],
   ["3", "12px"],
@@ -248,7 +248,7 @@ const spacingTokens = [
   ["base", "4px"],
 ];
 
-const roundedTokens = [
+const roundedTokens: Array<[string, string]> = [
   ["sm", "6px"],
   ["md", "12px"],
   ["lg", "16px"],
@@ -497,11 +497,11 @@ function MeasureScale({
             style={
               kind === "spacing"
                 ? ({
-                    "--measure-ratio": `${(parseMeasurePx(value) / maxPx) * 100}%`,
-                  } as React.CSSProperties)
+                  "--measure-ratio": `${(parseMeasurePx(value) / maxPx) * 100}%`,
+                } as React.CSSProperties)
                 : ({
-                    "--radius-size": value,
-                  } as React.CSSProperties)
+                  "--radius-size": value,
+                } as React.CSSProperties)
             }
           >
             <small title={name}>{name}</small>
