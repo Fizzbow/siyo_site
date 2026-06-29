@@ -79,17 +79,26 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <TableOfContents headings={headings} />
 
       <header
-        className="fixed left-0 right-0 mx-auto max-w-6xl flex justify-between items-center top-0 z-10 pt-8"
+        className={cn(
+          "fixed left-0 right-0 top-0 z-10",
+          "flex justify-between items-center",
+          "px-6 py-2.5",
+          "bg-white/40 dark:bg-[#161616]/40",
+          "backdrop-blur-lg backdrop-saturate-150",
+          "border-b border-black/5 dark:border-white/8"
+        )}
       >
-        <Link
-          className={cn(buttonVariants({ variant: "ghost" }), "z-11")}
-          href="/blog"
-        >
-          <ChevronLeft size={14} />
-          <span>Back</span>
-        </Link>
+        <div className="w-full max-w-6xl mx-auto flex justify-between items-center">
+          <Link
+            className={cn(buttonVariants({ variant: "ghost" }), "z-11")}
+            href="/blog"
+          >
+            <ChevronLeft size={14} />
+            <span>Back</span>
+          </Link>
 
-        <ReadingProgress />
+          <ReadingProgress />
+        </div>
       </header>
       <div className="relative mx-auto px-6 pt-20 pb-24">
         <div className="min-w-0">
