@@ -212,12 +212,51 @@ const Strong = ({ children }: PropsWithChildren) => (
   <strong className="font-semibold text-fg-1">{children}</strong>
 );
 
+const emojiOnlyPattern =
+  /^[\s\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Emoji}\uFE0F\u200D]+$/u;
+
+function isEmojiOnly(text: string) {
+  const trimmed = text.trim();
+  return trimmed.length > 0 && emojiOnlyPattern.test(trimmed);
+}
+
+function splitCalloutContent(children: ReactNode): {
+  icon: string | null;
+  content: ReactNode;
+} {
+  const items = React.Children.toArray(children);
+  if (items.length === 0) {
+    return { icon: null, content: children };
+  }
+
+  const first = items[0];
+
+  if (typeof first === "string" && isEmojiOnly(first)) {
+    return { icon: first.trim(), content: items.slice(1) };
+  }
+
+  if (React.isValidElement(first) && first.type === "p") {
+    const props = first.props as { children?: ReactNode };
+    const text = getTextContent(props.children).trim();
+    if (isEmojiOnly(text)) {
+      return { icon: text, content: items.slice(1) };
+    }
+  }
+
+  return { icon: null, content: children };
+}
+
 const Aside = ({ children }: PropsWithChildren) => {
+  const { icon, content } = splitCalloutContent(children);
+
   return (
-    <aside className="my-6 rounded-md bg-neutral-100/80 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 pl-4 pr-4 py-3">
-      <div className="text-sm font-mono font-semibold leading-relaxed text-fg-2 [&_strong]:text-fg-1 [&_code]:text-fg-primary">
-        {children}
-      </div>
+    <aside className="md-callout">
+      {icon ? (
+        <span className="md-callout__icon" aria-hidden>
+          {icon}
+        </span>
+      ) : null}
+      <div className="md-callout__body">{content}</div>
     </aside>
   );
 };
